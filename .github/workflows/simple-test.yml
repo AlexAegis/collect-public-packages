@@ -9,24 +9,41 @@ jobs:
   collect:
     runs-on: ubuntu-latest
     outputs:
-      publicPackageNames:
-        ${{ steps.collectPackages.outputs.publicPackageNames }}
+      public_packages: ${{ steps.collect_packages.outputs.public_packages }}
+      public_package_names:
+        ${{ steps.collect_packages.outputs.public_package_names }}
+      already_published_packages:
+        ${{ steps.collect_packages.outputs.already_published_packages }}
+      already_published_package_names:
+        ${{ steps.collect_packages.outputs.already_published_package_names }}
+      non_published_packages:
+        ${{ steps.collect_packages.outputs.non_published_packages }}
+      non_published_package_names:
+        ${{ steps.collect_packages.outputs.non_published_package_names }}
     steps:
       - name: checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 1
-      - name: collect public packages
-        id: collectPackages
+      - name: collect packages
+        id: collect_packages
         uses: ./
+        with:
+          only-public: true
+          check-if-published: true
   print:
     runs-on: ubuntu-latest
-    if: needs.collect.outputs.publicPackageNames
+    if: needs.collect.outputs.non_published_packages
     strategy:
       matrix:
-        package: ${{ fromJSON(needs.collect.outputs.publicPackageNames) }}
+        package: ${{ fromJSON(needs.collect.outputs.non_published_packages) }}
     needs: [collect]
     steps:
-      - name: print package
+      - name: print package data
         run: |
-          echo package: ${{ matrix.package }}
+          echo package_name: ${{ matrix.package.package_name }}
+          echo package_version: ${{ matrix.package.package_version }}
+          echo package_name_without_org: ${{ matrix.package.package_name_without_org }}
+          echo package_name_only_org: ${{ matrix.package.package_name_only_org }}
+          echo package_path_from_root_package: ${{ matrix.package.package_path_from_root_package }}
+          echo is_published: ${{ matrix.package.is_published }}

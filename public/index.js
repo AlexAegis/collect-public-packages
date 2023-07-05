@@ -6,12 +6,15 @@ import require$$3 from "https";
 import "net";
 import require$$1 from "tls";
 import require$$4 from "events";
-import "assert";
+import require$$5 from "assert";
 import require$$0$2 from "util";
+import require$$0$4 from "string_decoder";
+import require$$2$2 from "child_process";
+import require$$6 from "timers";
 import fs$a, { existsSync } from "node:fs";
-import path$b, { join, relative, normalize } from "node:path";
+import path$d, { join, relative, normalize } from "node:path";
 import { readFile } from "node:fs/promises";
-import require$$0$4 from "stream";
+import require$$0$5 from "stream";
 import process$1 from "node:process";
 import { fileURLToPath } from "node:url";
 import "node:stream";
@@ -76,7 +79,7 @@ function toCommandProperties(annotationProperties) {
   };
 }
 utils$l.toCommandProperties = toCommandProperties;
-var __createBinding$1 = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o, m, k, k2) {
+var __createBinding$4 = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o, m, k, k2) {
   if (k2 === void 0)
     k2 = k;
   Object.defineProperty(o, k2, { enumerable: true, get: function() {
@@ -87,30 +90,30 @@ var __createBinding$1 = commonjsGlobal && commonjsGlobal.__createBinding || (Obj
     k2 = k;
   o[k2] = m[k];
 });
-var __setModuleDefault$1 = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function(o, v) {
+var __setModuleDefault$4 = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function(o, v) {
   Object.defineProperty(o, "default", { enumerable: true, value: v });
 } : function(o, v) {
   o["default"] = v;
 });
-var __importStar$1 = commonjsGlobal && commonjsGlobal.__importStar || function(mod) {
+var __importStar$4 = commonjsGlobal && commonjsGlobal.__importStar || function(mod) {
   if (mod && mod.__esModule)
     return mod;
   var result = {};
   if (mod != null) {
     for (var k in mod)
       if (k !== "default" && Object.hasOwnProperty.call(mod, k))
-        __createBinding$1(result, mod, k);
+        __createBinding$4(result, mod, k);
   }
-  __setModuleDefault$1(result, mod);
+  __setModuleDefault$4(result, mod);
   return result;
 };
 Object.defineProperty(command, "__esModule", { value: true });
 command.issue = command.issueCommand = void 0;
-const os$2 = __importStar$1(require$$0);
+const os$3 = __importStar$4(require$$0);
 const utils_1$1 = utils$l;
 function issueCommand(command2, properties, message) {
   const cmd = new Command(command2, properties, message);
-  process.stdout.write(cmd.toString() + os$2.EOL);
+  process.stdout.write(cmd.toString() + os$3.EOL);
 }
 command.issueCommand = issueCommand;
 function issue(name, message = "") {
@@ -554,7 +557,7 @@ const esmBrowser = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePr
   version
 }, Symbol.toStringTag, { value: "Module" }));
 const require$$2 = /* @__PURE__ */ getAugmentedNamespace(esmBrowser);
-var __createBinding = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o, m, k, k2) {
+var __createBinding$3 = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o, m, k, k2) {
   if (k2 === void 0)
     k2 = k;
   Object.defineProperty(o, k2, { enumerable: true, get: function() {
@@ -565,27 +568,27 @@ var __createBinding = commonjsGlobal && commonjsGlobal.__createBinding || (Objec
     k2 = k;
   o[k2] = m[k];
 });
-var __setModuleDefault = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function(o, v) {
+var __setModuleDefault$3 = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function(o, v) {
   Object.defineProperty(o, "default", { enumerable: true, value: v });
 } : function(o, v) {
   o["default"] = v;
 });
-var __importStar = commonjsGlobal && commonjsGlobal.__importStar || function(mod) {
+var __importStar$3 = commonjsGlobal && commonjsGlobal.__importStar || function(mod) {
   if (mod && mod.__esModule)
     return mod;
   var result = {};
   if (mod != null) {
     for (var k in mod)
       if (k !== "default" && Object.hasOwnProperty.call(mod, k))
-        __createBinding(result, mod, k);
+        __createBinding$3(result, mod, k);
   }
-  __setModuleDefault(result, mod);
+  __setModuleDefault$3(result, mod);
   return result;
 };
 Object.defineProperty(fileCommand, "__esModule", { value: true });
 fileCommand.prepareKeyValueMessage = fileCommand.issueFileCommand = void 0;
-const fs$9 = __importStar(require$$0$1);
-const os$1 = __importStar(require$$0);
+const fs$9 = __importStar$3(require$$0$1);
+const os$2 = __importStar$3(require$$0);
 const uuid_1 = require$$2;
 const utils_1 = utils$l;
 function issueFileCommand(command2, message) {
@@ -596,7 +599,7 @@ function issueFileCommand(command2, message) {
   if (!fs$9.existsSync(filePath)) {
     throw new Error(`Missing file at path: ${filePath}`);
   }
-  fs$9.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os$1.EOL}`, {
+  fs$9.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os$2.EOL}`, {
     encoding: "utf8"
   });
 }
@@ -610,7 +613,7 @@ function prepareKeyValueMessage(key, value) {
   if (convertedValue.includes(delimiter)) {
     throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter}"`);
   }
-  return `${key}<<${delimiter}${os$1.EOL}${convertedValue}${os$1.EOL}${delimiter}`;
+  return `${key}<<${delimiter}${os$2.EOL}${convertedValue}${os$2.EOL}${delimiter}`;
 }
 fileCommand.prepareKeyValueMessage = prepareKeyValueMessage;
 var oidcUtils = {};
@@ -677,7 +680,7 @@ var tunnel$1 = {};
 var tls = require$$1;
 var http = require$$2$1;
 var https = require$$3;
-var events = require$$4;
+var events$1 = require$$4;
 var util$2 = require$$0$2;
 tunnel$1.httpOverHttp = httpOverHttp;
 tunnel$1.httpsOverHttp = httpsOverHttp;
@@ -728,7 +731,7 @@ function TunnelingAgent(options) {
     self2.removeSocket(socket);
   });
 }
-util$2.inherits(TunnelingAgent, events.EventEmitter);
+util$2.inherits(TunnelingAgent, events$1.EventEmitter);
 TunnelingAgent.prototype.addRequest = function addRequest(req, host, port, localAddress) {
   var self2 = this;
   var options = mergeOptions({ request: req }, self2.options, toOptions(host, port, localAddress));
@@ -1472,7 +1475,7 @@ var tunnel = tunnel$1;
   const lowercaseKeys = (obj) => Object.keys(obj).reduce((c, k) => (c[k.toLowerCase()] = obj[k], c), {});
 })(lib);
 var auth = {};
-var __awaiter = commonjsGlobal && commonjsGlobal.__awaiter || function(thisArg, _arguments, P, generator) {
+var __awaiter$3 = commonjsGlobal && commonjsGlobal.__awaiter || function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve) {
       resolve(value);
@@ -1517,7 +1520,7 @@ class BasicCredentialHandler {
     return false;
   }
   handleAuthentication() {
-    return __awaiter(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       throw new Error("not implemented");
     });
   }
@@ -1540,7 +1543,7 @@ class BearerCredentialHandler {
     return false;
   }
   handleAuthentication() {
-    return __awaiter(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       throw new Error("not implemented");
     });
   }
@@ -1563,7 +1566,7 @@ class PersonalAccessTokenCredentialHandler {
     return false;
   }
   handleAuthentication() {
-    return __awaiter(this, void 0, void 0, function* () {
+    return __awaiter$3(this, void 0, void 0, function* () {
       throw new Error("not implemented");
     });
   }
@@ -2247,6 +2250,1016 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
   return core$1;
 }
 var coreExports = requireCore();
+var exec$1 = {};
+var toolrunner = {};
+var io$1 = {};
+var ioUtil$2 = {};
+(function(exports) {
+  var __createBinding2 = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o, m, k, k2) {
+    if (k2 === void 0)
+      k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() {
+      return m[k];
+    } });
+  } : function(o, m, k, k2) {
+    if (k2 === void 0)
+      k2 = k;
+    o[k2] = m[k];
+  });
+  var __setModuleDefault2 = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+  } : function(o, v) {
+    o["default"] = v;
+  });
+  var __importStar2 = commonjsGlobal && commonjsGlobal.__importStar || function(mod) {
+    if (mod && mod.__esModule)
+      return mod;
+    var result = {};
+    if (mod != null) {
+      for (var k in mod)
+        if (k !== "default" && Object.hasOwnProperty.call(mod, k))
+          __createBinding2(result, mod, k);
+    }
+    __setModuleDefault2(result, mod);
+    return result;
+  };
+  var __awaiter2 = commonjsGlobal && commonjsGlobal.__awaiter || function(thisArg, _arguments, P, generator) {
+    function adopt(value) {
+      return value instanceof P ? value : new P(function(resolve) {
+        resolve(value);
+      });
+    }
+    return new (P || (P = Promise))(function(resolve, reject) {
+      function fulfilled(value) {
+        try {
+          step(generator.next(value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function rejected(value) {
+        try {
+          step(generator["throw"](value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function step(result) {
+        result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+      }
+      step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+  };
+  var _a;
+  Object.defineProperty(exports, "__esModule", { value: true });
+  exports.getCmdPath = exports.tryGetExecutablePath = exports.isRooted = exports.isDirectory = exports.exists = exports.READONLY = exports.UV_FS_O_EXLOCK = exports.IS_WINDOWS = exports.unlink = exports.symlink = exports.stat = exports.rmdir = exports.rm = exports.rename = exports.readlink = exports.readdir = exports.open = exports.mkdir = exports.lstat = exports.copyFile = exports.chmod = void 0;
+  const fs2 = __importStar2(require$$0$1);
+  const path2 = __importStar2(require$$0$3);
+  _a = fs2.promises, exports.chmod = _a.chmod, exports.copyFile = _a.copyFile, exports.lstat = _a.lstat, exports.mkdir = _a.mkdir, exports.open = _a.open, exports.readdir = _a.readdir, exports.readlink = _a.readlink, exports.rename = _a.rename, exports.rm = _a.rm, exports.rmdir = _a.rmdir, exports.stat = _a.stat, exports.symlink = _a.symlink, exports.unlink = _a.unlink;
+  exports.IS_WINDOWS = process.platform === "win32";
+  exports.UV_FS_O_EXLOCK = 268435456;
+  exports.READONLY = fs2.constants.O_RDONLY;
+  function exists(fsPath) {
+    return __awaiter2(this, void 0, void 0, function* () {
+      try {
+        yield exports.stat(fsPath);
+      } catch (err) {
+        if (err.code === "ENOENT") {
+          return false;
+        }
+        throw err;
+      }
+      return true;
+    });
+  }
+  exports.exists = exists;
+  function isDirectory(fsPath, useStat = false) {
+    return __awaiter2(this, void 0, void 0, function* () {
+      const stats = useStat ? yield exports.stat(fsPath) : yield exports.lstat(fsPath);
+      return stats.isDirectory();
+    });
+  }
+  exports.isDirectory = isDirectory;
+  function isRooted(p) {
+    p = normalizeSeparators(p);
+    if (!p) {
+      throw new Error('isRooted() parameter "p" cannot be empty');
+    }
+    if (exports.IS_WINDOWS) {
+      return p.startsWith("\\") || /^[A-Z]:/i.test(p);
+    }
+    return p.startsWith("/");
+  }
+  exports.isRooted = isRooted;
+  function tryGetExecutablePath(filePath, extensions) {
+    return __awaiter2(this, void 0, void 0, function* () {
+      let stats = void 0;
+      try {
+        stats = yield exports.stat(filePath);
+      } catch (err) {
+        if (err.code !== "ENOENT") {
+          console.log(`Unexpected error attempting to determine if executable file exists '${filePath}': ${err}`);
+        }
+      }
+      if (stats && stats.isFile()) {
+        if (exports.IS_WINDOWS) {
+          const upperExt = path2.extname(filePath).toUpperCase();
+          if (extensions.some((validExt) => validExt.toUpperCase() === upperExt)) {
+            return filePath;
+          }
+        } else {
+          if (isUnixExecutable(stats)) {
+            return filePath;
+          }
+        }
+      }
+      const originalFilePath = filePath;
+      for (const extension of extensions) {
+        filePath = originalFilePath + extension;
+        stats = void 0;
+        try {
+          stats = yield exports.stat(filePath);
+        } catch (err) {
+          if (err.code !== "ENOENT") {
+            console.log(`Unexpected error attempting to determine if executable file exists '${filePath}': ${err}`);
+          }
+        }
+        if (stats && stats.isFile()) {
+          if (exports.IS_WINDOWS) {
+            try {
+              const directory = path2.dirname(filePath);
+              const upperName = path2.basename(filePath).toUpperCase();
+              for (const actualName of yield exports.readdir(directory)) {
+                if (upperName === actualName.toUpperCase()) {
+                  filePath = path2.join(directory, actualName);
+                  break;
+                }
+              }
+            } catch (err) {
+              console.log(`Unexpected error attempting to determine the actual case of the file '${filePath}': ${err}`);
+            }
+            return filePath;
+          } else {
+            if (isUnixExecutable(stats)) {
+              return filePath;
+            }
+          }
+        }
+      }
+      return "";
+    });
+  }
+  exports.tryGetExecutablePath = tryGetExecutablePath;
+  function normalizeSeparators(p) {
+    p = p || "";
+    if (exports.IS_WINDOWS) {
+      p = p.replace(/\//g, "\\");
+      return p.replace(/\\\\+/g, "\\");
+    }
+    return p.replace(/\/\/+/g, "/");
+  }
+  function isUnixExecutable(stats) {
+    return (stats.mode & 1) > 0 || (stats.mode & 8) > 0 && stats.gid === process.getgid() || (stats.mode & 64) > 0 && stats.uid === process.getuid();
+  }
+  function getCmdPath() {
+    var _a2;
+    return (_a2 = process.env["COMSPEC"]) !== null && _a2 !== void 0 ? _a2 : `cmd.exe`;
+  }
+  exports.getCmdPath = getCmdPath;
+})(ioUtil$2);
+var __createBinding$2 = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o, m, k, k2) {
+  if (k2 === void 0)
+    k2 = k;
+  Object.defineProperty(o, k2, { enumerable: true, get: function() {
+    return m[k];
+  } });
+} : function(o, m, k, k2) {
+  if (k2 === void 0)
+    k2 = k;
+  o[k2] = m[k];
+});
+var __setModuleDefault$2 = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function(o, v) {
+  Object.defineProperty(o, "default", { enumerable: true, value: v });
+} : function(o, v) {
+  o["default"] = v;
+});
+var __importStar$2 = commonjsGlobal && commonjsGlobal.__importStar || function(mod) {
+  if (mod && mod.__esModule)
+    return mod;
+  var result = {};
+  if (mod != null) {
+    for (var k in mod)
+      if (k !== "default" && Object.hasOwnProperty.call(mod, k))
+        __createBinding$2(result, mod, k);
+  }
+  __setModuleDefault$2(result, mod);
+  return result;
+};
+var __awaiter$2 = commonjsGlobal && commonjsGlobal.__awaiter || function(thisArg, _arguments, P, generator) {
+  function adopt(value) {
+    return value instanceof P ? value : new P(function(resolve) {
+      resolve(value);
+    });
+  }
+  return new (P || (P = Promise))(function(resolve, reject) {
+    function fulfilled(value) {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+    function rejected(value) {
+      try {
+        step(generator["throw"](value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+    function step(result) {
+      result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+    }
+    step((generator = generator.apply(thisArg, _arguments || [])).next());
+  });
+};
+Object.defineProperty(io$1, "__esModule", { value: true });
+io$1.findInPath = io$1.which = io$1.mkdirP = io$1.rmRF = io$1.mv = io$1.cp = void 0;
+const assert_1 = require$$5;
+const path$c = __importStar$2(require$$0$3);
+const ioUtil$1 = __importStar$2(ioUtil$2);
+function cp(source, dest, options = {}) {
+  return __awaiter$2(this, void 0, void 0, function* () {
+    const { force, recursive, copySourceDirectory } = readCopyOptions(options);
+    const destStat = (yield ioUtil$1.exists(dest)) ? yield ioUtil$1.stat(dest) : null;
+    if (destStat && destStat.isFile() && !force) {
+      return;
+    }
+    const newDest = destStat && destStat.isDirectory() && copySourceDirectory ? path$c.join(dest, path$c.basename(source)) : dest;
+    if (!(yield ioUtil$1.exists(source))) {
+      throw new Error(`no such file or directory: ${source}`);
+    }
+    const sourceStat = yield ioUtil$1.stat(source);
+    if (sourceStat.isDirectory()) {
+      if (!recursive) {
+        throw new Error(`Failed to copy. ${source} is a directory, but tried to copy without recursive flag.`);
+      } else {
+        yield cpDirRecursive(source, newDest, 0, force);
+      }
+    } else {
+      if (path$c.relative(source, newDest) === "") {
+        throw new Error(`'${newDest}' and '${source}' are the same file`);
+      }
+      yield copyFile(source, newDest, force);
+    }
+  });
+}
+io$1.cp = cp;
+function mv(source, dest, options = {}) {
+  return __awaiter$2(this, void 0, void 0, function* () {
+    if (yield ioUtil$1.exists(dest)) {
+      let destExists = true;
+      if (yield ioUtil$1.isDirectory(dest)) {
+        dest = path$c.join(dest, path$c.basename(source));
+        destExists = yield ioUtil$1.exists(dest);
+      }
+      if (destExists) {
+        if (options.force == null || options.force) {
+          yield rmRF(dest);
+        } else {
+          throw new Error("Destination already exists");
+        }
+      }
+    }
+    yield mkdirP(path$c.dirname(dest));
+    yield ioUtil$1.rename(source, dest);
+  });
+}
+io$1.mv = mv;
+function rmRF(inputPath) {
+  return __awaiter$2(this, void 0, void 0, function* () {
+    if (ioUtil$1.IS_WINDOWS) {
+      if (/[*"<>|]/.test(inputPath)) {
+        throw new Error('File path must not contain `*`, `"`, `<`, `>` or `|` on Windows');
+      }
+    }
+    try {
+      yield ioUtil$1.rm(inputPath, {
+        force: true,
+        maxRetries: 3,
+        recursive: true,
+        retryDelay: 300
+      });
+    } catch (err) {
+      throw new Error(`File was unable to be removed ${err}`);
+    }
+  });
+}
+io$1.rmRF = rmRF;
+function mkdirP(fsPath) {
+  return __awaiter$2(this, void 0, void 0, function* () {
+    assert_1.ok(fsPath, "a path argument must be provided");
+    yield ioUtil$1.mkdir(fsPath, { recursive: true });
+  });
+}
+io$1.mkdirP = mkdirP;
+function which(tool, check) {
+  return __awaiter$2(this, void 0, void 0, function* () {
+    if (!tool) {
+      throw new Error("parameter 'tool' is required");
+    }
+    if (check) {
+      const result = yield which(tool, false);
+      if (!result) {
+        if (ioUtil$1.IS_WINDOWS) {
+          throw new Error(`Unable to locate executable file: ${tool}. Please verify either the file path exists or the file can be found within a directory specified by the PATH environment variable. Also verify the file has a valid extension for an executable file.`);
+        } else {
+          throw new Error(`Unable to locate executable file: ${tool}. Please verify either the file path exists or the file can be found within a directory specified by the PATH environment variable. Also check the file mode to verify the file is executable.`);
+        }
+      }
+      return result;
+    }
+    const matches = yield findInPath(tool);
+    if (matches && matches.length > 0) {
+      return matches[0];
+    }
+    return "";
+  });
+}
+io$1.which = which;
+function findInPath(tool) {
+  return __awaiter$2(this, void 0, void 0, function* () {
+    if (!tool) {
+      throw new Error("parameter 'tool' is required");
+    }
+    const extensions = [];
+    if (ioUtil$1.IS_WINDOWS && process.env["PATHEXT"]) {
+      for (const extension of process.env["PATHEXT"].split(path$c.delimiter)) {
+        if (extension) {
+          extensions.push(extension);
+        }
+      }
+    }
+    if (ioUtil$1.isRooted(tool)) {
+      const filePath = yield ioUtil$1.tryGetExecutablePath(tool, extensions);
+      if (filePath) {
+        return [filePath];
+      }
+      return [];
+    }
+    if (tool.includes(path$c.sep)) {
+      return [];
+    }
+    const directories = [];
+    if (process.env.PATH) {
+      for (const p of process.env.PATH.split(path$c.delimiter)) {
+        if (p) {
+          directories.push(p);
+        }
+      }
+    }
+    const matches = [];
+    for (const directory of directories) {
+      const filePath = yield ioUtil$1.tryGetExecutablePath(path$c.join(directory, tool), extensions);
+      if (filePath) {
+        matches.push(filePath);
+      }
+    }
+    return matches;
+  });
+}
+io$1.findInPath = findInPath;
+function readCopyOptions(options) {
+  const force = options.force == null ? true : options.force;
+  const recursive = Boolean(options.recursive);
+  const copySourceDirectory = options.copySourceDirectory == null ? true : Boolean(options.copySourceDirectory);
+  return { force, recursive, copySourceDirectory };
+}
+function cpDirRecursive(sourceDir, destDir, currentDepth, force) {
+  return __awaiter$2(this, void 0, void 0, function* () {
+    if (currentDepth >= 255)
+      return;
+    currentDepth++;
+    yield mkdirP(destDir);
+    const files = yield ioUtil$1.readdir(sourceDir);
+    for (const fileName of files) {
+      const srcFile = `${sourceDir}/${fileName}`;
+      const destFile = `${destDir}/${fileName}`;
+      const srcFileStat = yield ioUtil$1.lstat(srcFile);
+      if (srcFileStat.isDirectory()) {
+        yield cpDirRecursive(srcFile, destFile, currentDepth, force);
+      } else {
+        yield copyFile(srcFile, destFile, force);
+      }
+    }
+    yield ioUtil$1.chmod(destDir, (yield ioUtil$1.stat(sourceDir)).mode);
+  });
+}
+function copyFile(srcFile, destFile, force) {
+  return __awaiter$2(this, void 0, void 0, function* () {
+    if ((yield ioUtil$1.lstat(srcFile)).isSymbolicLink()) {
+      try {
+        yield ioUtil$1.lstat(destFile);
+        yield ioUtil$1.unlink(destFile);
+      } catch (e) {
+        if (e.code === "EPERM") {
+          yield ioUtil$1.chmod(destFile, "0666");
+          yield ioUtil$1.unlink(destFile);
+        }
+      }
+      const symlinkFull = yield ioUtil$1.readlink(srcFile);
+      yield ioUtil$1.symlink(symlinkFull, destFile, ioUtil$1.IS_WINDOWS ? "junction" : null);
+    } else if (!(yield ioUtil$1.exists(destFile)) || force) {
+      yield ioUtil$1.copyFile(srcFile, destFile);
+    }
+  });
+}
+var __createBinding$1 = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o, m, k, k2) {
+  if (k2 === void 0)
+    k2 = k;
+  Object.defineProperty(o, k2, { enumerable: true, get: function() {
+    return m[k];
+  } });
+} : function(o, m, k, k2) {
+  if (k2 === void 0)
+    k2 = k;
+  o[k2] = m[k];
+});
+var __setModuleDefault$1 = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function(o, v) {
+  Object.defineProperty(o, "default", { enumerable: true, value: v });
+} : function(o, v) {
+  o["default"] = v;
+});
+var __importStar$1 = commonjsGlobal && commonjsGlobal.__importStar || function(mod) {
+  if (mod && mod.__esModule)
+    return mod;
+  var result = {};
+  if (mod != null) {
+    for (var k in mod)
+      if (k !== "default" && Object.hasOwnProperty.call(mod, k))
+        __createBinding$1(result, mod, k);
+  }
+  __setModuleDefault$1(result, mod);
+  return result;
+};
+var __awaiter$1 = commonjsGlobal && commonjsGlobal.__awaiter || function(thisArg, _arguments, P, generator) {
+  function adopt(value) {
+    return value instanceof P ? value : new P(function(resolve) {
+      resolve(value);
+    });
+  }
+  return new (P || (P = Promise))(function(resolve, reject) {
+    function fulfilled(value) {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+    function rejected(value) {
+      try {
+        step(generator["throw"](value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+    function step(result) {
+      result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+    }
+    step((generator = generator.apply(thisArg, _arguments || [])).next());
+  });
+};
+Object.defineProperty(toolrunner, "__esModule", { value: true });
+toolrunner.argStringToArray = toolrunner.ToolRunner = void 0;
+const os$1 = __importStar$1(require$$0);
+const events = __importStar$1(require$$4);
+const child = __importStar$1(require$$2$2);
+const path$b = __importStar$1(require$$0$3);
+const io = __importStar$1(io$1);
+const ioUtil = __importStar$1(ioUtil$2);
+const timers_1 = require$$6;
+const IS_WINDOWS = process.platform === "win32";
+class ToolRunner extends events.EventEmitter {
+  constructor(toolPath, args, options) {
+    super();
+    if (!toolPath) {
+      throw new Error("Parameter 'toolPath' cannot be null or empty.");
+    }
+    this.toolPath = toolPath;
+    this.args = args || [];
+    this.options = options || {};
+  }
+  _debug(message) {
+    if (this.options.listeners && this.options.listeners.debug) {
+      this.options.listeners.debug(message);
+    }
+  }
+  _getCommandString(options, noPrefix) {
+    const toolPath = this._getSpawnFileName();
+    const args = this._getSpawnArgs(options);
+    let cmd = noPrefix ? "" : "[command]";
+    if (IS_WINDOWS) {
+      if (this._isCmdFile()) {
+        cmd += toolPath;
+        for (const a of args) {
+          cmd += ` ${a}`;
+        }
+      } else if (options.windowsVerbatimArguments) {
+        cmd += `"${toolPath}"`;
+        for (const a of args) {
+          cmd += ` ${a}`;
+        }
+      } else {
+        cmd += this._windowsQuoteCmdArg(toolPath);
+        for (const a of args) {
+          cmd += ` ${this._windowsQuoteCmdArg(a)}`;
+        }
+      }
+    } else {
+      cmd += toolPath;
+      for (const a of args) {
+        cmd += ` ${a}`;
+      }
+    }
+    return cmd;
+  }
+  _processLineBuffer(data, strBuffer, onLine) {
+    try {
+      let s = strBuffer + data.toString();
+      let n = s.indexOf(os$1.EOL);
+      while (n > -1) {
+        const line = s.substring(0, n);
+        onLine(line);
+        s = s.substring(n + os$1.EOL.length);
+        n = s.indexOf(os$1.EOL);
+      }
+      return s;
+    } catch (err) {
+      this._debug(`error processing line. Failed with error ${err}`);
+      return "";
+    }
+  }
+  _getSpawnFileName() {
+    if (IS_WINDOWS) {
+      if (this._isCmdFile()) {
+        return process.env["COMSPEC"] || "cmd.exe";
+      }
+    }
+    return this.toolPath;
+  }
+  _getSpawnArgs(options) {
+    if (IS_WINDOWS) {
+      if (this._isCmdFile()) {
+        let argline = `/D /S /C "${this._windowsQuoteCmdArg(this.toolPath)}`;
+        for (const a of this.args) {
+          argline += " ";
+          argline += options.windowsVerbatimArguments ? a : this._windowsQuoteCmdArg(a);
+        }
+        argline += '"';
+        return [argline];
+      }
+    }
+    return this.args;
+  }
+  _endsWith(str2, end) {
+    return str2.endsWith(end);
+  }
+  _isCmdFile() {
+    const upperToolPath = this.toolPath.toUpperCase();
+    return this._endsWith(upperToolPath, ".CMD") || this._endsWith(upperToolPath, ".BAT");
+  }
+  _windowsQuoteCmdArg(arg) {
+    if (!this._isCmdFile()) {
+      return this._uvQuoteCmdArg(arg);
+    }
+    if (!arg) {
+      return '""';
+    }
+    const cmdSpecialChars = [
+      " ",
+      "	",
+      "&",
+      "(",
+      ")",
+      "[",
+      "]",
+      "{",
+      "}",
+      "^",
+      "=",
+      ";",
+      "!",
+      "'",
+      "+",
+      ",",
+      "`",
+      "~",
+      "|",
+      "<",
+      ">",
+      '"'
+    ];
+    let needsQuotes = false;
+    for (const char of arg) {
+      if (cmdSpecialChars.some((x) => x === char)) {
+        needsQuotes = true;
+        break;
+      }
+    }
+    if (!needsQuotes) {
+      return arg;
+    }
+    let reverse = '"';
+    let quoteHit = true;
+    for (let i = arg.length; i > 0; i--) {
+      reverse += arg[i - 1];
+      if (quoteHit && arg[i - 1] === "\\") {
+        reverse += "\\";
+      } else if (arg[i - 1] === '"') {
+        quoteHit = true;
+        reverse += '"';
+      } else {
+        quoteHit = false;
+      }
+    }
+    reverse += '"';
+    return reverse.split("").reverse().join("");
+  }
+  _uvQuoteCmdArg(arg) {
+    if (!arg) {
+      return '""';
+    }
+    if (!arg.includes(" ") && !arg.includes("	") && !arg.includes('"')) {
+      return arg;
+    }
+    if (!arg.includes('"') && !arg.includes("\\")) {
+      return `"${arg}"`;
+    }
+    let reverse = '"';
+    let quoteHit = true;
+    for (let i = arg.length; i > 0; i--) {
+      reverse += arg[i - 1];
+      if (quoteHit && arg[i - 1] === "\\") {
+        reverse += "\\";
+      } else if (arg[i - 1] === '"') {
+        quoteHit = true;
+        reverse += "\\";
+      } else {
+        quoteHit = false;
+      }
+    }
+    reverse += '"';
+    return reverse.split("").reverse().join("");
+  }
+  _cloneExecOptions(options) {
+    options = options || {};
+    const result = {
+      cwd: options.cwd || process.cwd(),
+      env: options.env || process.env,
+      silent: options.silent || false,
+      windowsVerbatimArguments: options.windowsVerbatimArguments || false,
+      failOnStdErr: options.failOnStdErr || false,
+      ignoreReturnCode: options.ignoreReturnCode || false,
+      delay: options.delay || 1e4
+    };
+    result.outStream = options.outStream || process.stdout;
+    result.errStream = options.errStream || process.stderr;
+    return result;
+  }
+  _getSpawnOptions(options, toolPath) {
+    options = options || {};
+    const result = {};
+    result.cwd = options.cwd;
+    result.env = options.env;
+    result["windowsVerbatimArguments"] = options.windowsVerbatimArguments || this._isCmdFile();
+    if (options.windowsVerbatimArguments) {
+      result.argv0 = `"${toolPath}"`;
+    }
+    return result;
+  }
+  /**
+   * Exec a tool.
+   * Output will be streamed to the live console.
+   * Returns promise with return code
+   *
+   * @param     tool     path to tool to exec
+   * @param     options  optional exec options.  See ExecOptions
+   * @returns   number
+   */
+  exec() {
+    return __awaiter$1(this, void 0, void 0, function* () {
+      if (!ioUtil.isRooted(this.toolPath) && (this.toolPath.includes("/") || IS_WINDOWS && this.toolPath.includes("\\"))) {
+        this.toolPath = path$b.resolve(process.cwd(), this.options.cwd || process.cwd(), this.toolPath);
+      }
+      this.toolPath = yield io.which(this.toolPath, true);
+      return new Promise((resolve, reject) => __awaiter$1(this, void 0, void 0, function* () {
+        this._debug(`exec tool: ${this.toolPath}`);
+        this._debug("arguments:");
+        for (const arg of this.args) {
+          this._debug(`   ${arg}`);
+        }
+        const optionsNonNull = this._cloneExecOptions(this.options);
+        if (!optionsNonNull.silent && optionsNonNull.outStream) {
+          optionsNonNull.outStream.write(this._getCommandString(optionsNonNull) + os$1.EOL);
+        }
+        const state = new ExecState(optionsNonNull, this.toolPath);
+        state.on("debug", (message) => {
+          this._debug(message);
+        });
+        if (this.options.cwd && !(yield ioUtil.exists(this.options.cwd))) {
+          return reject(new Error(`The cwd: ${this.options.cwd} does not exist!`));
+        }
+        const fileName = this._getSpawnFileName();
+        const cp2 = child.spawn(fileName, this._getSpawnArgs(optionsNonNull), this._getSpawnOptions(this.options, fileName));
+        let stdbuffer = "";
+        if (cp2.stdout) {
+          cp2.stdout.on("data", (data) => {
+            if (this.options.listeners && this.options.listeners.stdout) {
+              this.options.listeners.stdout(data);
+            }
+            if (!optionsNonNull.silent && optionsNonNull.outStream) {
+              optionsNonNull.outStream.write(data);
+            }
+            stdbuffer = this._processLineBuffer(data, stdbuffer, (line) => {
+              if (this.options.listeners && this.options.listeners.stdline) {
+                this.options.listeners.stdline(line);
+              }
+            });
+          });
+        }
+        let errbuffer = "";
+        if (cp2.stderr) {
+          cp2.stderr.on("data", (data) => {
+            state.processStderr = true;
+            if (this.options.listeners && this.options.listeners.stderr) {
+              this.options.listeners.stderr(data);
+            }
+            if (!optionsNonNull.silent && optionsNonNull.errStream && optionsNonNull.outStream) {
+              const s = optionsNonNull.failOnStdErr ? optionsNonNull.errStream : optionsNonNull.outStream;
+              s.write(data);
+            }
+            errbuffer = this._processLineBuffer(data, errbuffer, (line) => {
+              if (this.options.listeners && this.options.listeners.errline) {
+                this.options.listeners.errline(line);
+              }
+            });
+          });
+        }
+        cp2.on("error", (err) => {
+          state.processError = err.message;
+          state.processExited = true;
+          state.processClosed = true;
+          state.CheckComplete();
+        });
+        cp2.on("exit", (code) => {
+          state.processExitCode = code;
+          state.processExited = true;
+          this._debug(`Exit code ${code} received from tool '${this.toolPath}'`);
+          state.CheckComplete();
+        });
+        cp2.on("close", (code) => {
+          state.processExitCode = code;
+          state.processExited = true;
+          state.processClosed = true;
+          this._debug(`STDIO streams have closed for tool '${this.toolPath}'`);
+          state.CheckComplete();
+        });
+        state.on("done", (error2, exitCode) => {
+          if (stdbuffer.length > 0) {
+            this.emit("stdline", stdbuffer);
+          }
+          if (errbuffer.length > 0) {
+            this.emit("errline", errbuffer);
+          }
+          cp2.removeAllListeners();
+          if (error2) {
+            reject(error2);
+          } else {
+            resolve(exitCode);
+          }
+        });
+        if (this.options.input) {
+          if (!cp2.stdin) {
+            throw new Error("child process missing stdin");
+          }
+          cp2.stdin.end(this.options.input);
+        }
+      }));
+    });
+  }
+}
+toolrunner.ToolRunner = ToolRunner;
+function argStringToArray(argString) {
+  const args = [];
+  let inQuotes = false;
+  let escaped2 = false;
+  let arg = "";
+  function append2(c) {
+    if (escaped2 && c !== '"') {
+      arg += "\\";
+    }
+    arg += c;
+    escaped2 = false;
+  }
+  for (let i = 0; i < argString.length; i++) {
+    const c = argString.charAt(i);
+    if (c === '"') {
+      if (!escaped2) {
+        inQuotes = !inQuotes;
+      } else {
+        append2(c);
+      }
+      continue;
+    }
+    if (c === "\\" && escaped2) {
+      append2(c);
+      continue;
+    }
+    if (c === "\\" && inQuotes) {
+      escaped2 = true;
+      continue;
+    }
+    if (c === " " && !inQuotes) {
+      if (arg.length > 0) {
+        args.push(arg);
+        arg = "";
+      }
+      continue;
+    }
+    append2(c);
+  }
+  if (arg.length > 0) {
+    args.push(arg.trim());
+  }
+  return args;
+}
+toolrunner.argStringToArray = argStringToArray;
+class ExecState extends events.EventEmitter {
+  constructor(options, toolPath) {
+    super();
+    this.processClosed = false;
+    this.processError = "";
+    this.processExitCode = 0;
+    this.processExited = false;
+    this.processStderr = false;
+    this.delay = 1e4;
+    this.done = false;
+    this.timeout = null;
+    if (!toolPath) {
+      throw new Error("toolPath must not be empty");
+    }
+    this.options = options;
+    this.toolPath = toolPath;
+    if (options.delay) {
+      this.delay = options.delay;
+    }
+  }
+  CheckComplete() {
+    if (this.done) {
+      return;
+    }
+    if (this.processClosed) {
+      this._setResult();
+    } else if (this.processExited) {
+      this.timeout = timers_1.setTimeout(ExecState.HandleTimeout, this.delay, this);
+    }
+  }
+  _debug(message) {
+    this.emit("debug", message);
+  }
+  _setResult() {
+    let error2;
+    if (this.processExited) {
+      if (this.processError) {
+        error2 = new Error(`There was an error when attempting to execute the process '${this.toolPath}'. This may indicate the process failed to start. Error: ${this.processError}`);
+      } else if (this.processExitCode !== 0 && !this.options.ignoreReturnCode) {
+        error2 = new Error(`The process '${this.toolPath}' failed with exit code ${this.processExitCode}`);
+      } else if (this.processStderr && this.options.failOnStdErr) {
+        error2 = new Error(`The process '${this.toolPath}' failed because one or more lines were written to the STDERR stream`);
+      }
+    }
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+      this.timeout = null;
+    }
+    this.done = true;
+    this.emit("done", error2, this.processExitCode);
+  }
+  static HandleTimeout(state) {
+    if (state.done) {
+      return;
+    }
+    if (!state.processClosed && state.processExited) {
+      const message = `The STDIO streams did not close within ${state.delay / 1e3} seconds of the exit event from process '${state.toolPath}'. This may indicate a child process inherited the STDIO streams and has not yet exited.`;
+      state._debug(message);
+    }
+    state._setResult();
+  }
+}
+var __createBinding = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o, m, k, k2) {
+  if (k2 === void 0)
+    k2 = k;
+  Object.defineProperty(o, k2, { enumerable: true, get: function() {
+    return m[k];
+  } });
+} : function(o, m, k, k2) {
+  if (k2 === void 0)
+    k2 = k;
+  o[k2] = m[k];
+});
+var __setModuleDefault = commonjsGlobal && commonjsGlobal.__setModuleDefault || (Object.create ? function(o, v) {
+  Object.defineProperty(o, "default", { enumerable: true, value: v });
+} : function(o, v) {
+  o["default"] = v;
+});
+var __importStar = commonjsGlobal && commonjsGlobal.__importStar || function(mod) {
+  if (mod && mod.__esModule)
+    return mod;
+  var result = {};
+  if (mod != null) {
+    for (var k in mod)
+      if (k !== "default" && Object.hasOwnProperty.call(mod, k))
+        __createBinding(result, mod, k);
+  }
+  __setModuleDefault(result, mod);
+  return result;
+};
+var __awaiter = commonjsGlobal && commonjsGlobal.__awaiter || function(thisArg, _arguments, P, generator) {
+  function adopt(value) {
+    return value instanceof P ? value : new P(function(resolve) {
+      resolve(value);
+    });
+  }
+  return new (P || (P = Promise))(function(resolve, reject) {
+    function fulfilled(value) {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+    function rejected(value) {
+      try {
+        step(generator["throw"](value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+    function step(result) {
+      result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+    }
+    step((generator = generator.apply(thisArg, _arguments || [])).next());
+  });
+};
+Object.defineProperty(exec$1, "__esModule", { value: true });
+exec$1.getExecOutput = exec_2 = exec$1.exec = void 0;
+const string_decoder_1 = require$$0$4;
+const tr = __importStar(toolrunner);
+function exec(commandLine, args, options) {
+  return __awaiter(this, void 0, void 0, function* () {
+    const commandArgs = tr.argStringToArray(commandLine);
+    if (commandArgs.length === 0) {
+      throw new Error(`Parameter 'commandLine' cannot be null or empty.`);
+    }
+    const toolPath = commandArgs[0];
+    args = commandArgs.slice(1).concat(args || []);
+    const runner = new tr.ToolRunner(toolPath, args, options);
+    return runner.exec();
+  });
+}
+var exec_2 = exec$1.exec = exec;
+function getExecOutput(commandLine, args, options) {
+  var _a, _b;
+  return __awaiter(this, void 0, void 0, function* () {
+    let stdout = "";
+    let stderr = "";
+    const stdoutDecoder = new string_decoder_1.StringDecoder("utf8");
+    const stderrDecoder = new string_decoder_1.StringDecoder("utf8");
+    const originalStdoutListener = (_a = options === null || options === void 0 ? void 0 : options.listeners) === null || _a === void 0 ? void 0 : _a.stdout;
+    const originalStdErrListener = (_b = options === null || options === void 0 ? void 0 : options.listeners) === null || _b === void 0 ? void 0 : _b.stderr;
+    const stdErrListener = (data) => {
+      stderr += stderrDecoder.write(data);
+      if (originalStdErrListener) {
+        originalStdErrListener(data);
+      }
+    };
+    const stdOutListener = (data) => {
+      stdout += stdoutDecoder.write(data);
+      if (originalStdoutListener) {
+        originalStdoutListener(data);
+      }
+    };
+    const listeners = Object.assign(Object.assign({}, options === null || options === void 0 ? void 0 : options.listeners), { stdout: stdOutListener, stderr: stdErrListener });
+    const exitCode = yield exec(commandLine, args, Object.assign(Object.assign({}, options), { listeners }));
+    stdout += stdoutDecoder.end();
+    stderr += stderrDecoder.end();
+    return {
+      exitCode,
+      stdout,
+      stderr
+    };
+  });
+}
+exec$1.getExecOutput = getExecOutput;
 const isPromiseFulfilled = (promiseResult) => {
   return promiseResult.status === "fulfilled";
 };
@@ -5223,7 +6236,7 @@ const match = (target, matcher2) => {
     });
   }
 };
-const Stream = require$$0$4;
+const Stream = require$$0$5;
 const PassThrough = Stream.PassThrough;
 const slice = Array.prototype.slice;
 var merge2_1 = merge2$1;
@@ -5699,8 +6712,8 @@ var stringify$4 = (ast, options = {}) => {
       return node.value;
     }
     if (node.nodes) {
-      for (let child of node.nodes) {
-        output += stringify2(child);
+      for (let child2 of node.nodes) {
+        output += stringify2(child2);
       }
     }
     return output;
@@ -6173,8 +7186,8 @@ const compile$1 = (ast, options = {}) => {
       }
     }
     if (node.nodes) {
-      for (let child of node.nodes) {
-        output += walk2(child, node);
+      for (let child2 of node.nodes) {
+        output += walk2(child2, node);
       }
     }
     return output;
@@ -6248,23 +7261,23 @@ const expand$1 = (ast, options = {}) => {
       queue2 = block.queue;
     }
     for (let i = 0; i < node.nodes.length; i++) {
-      let child = node.nodes[i];
-      if (child.type === "comma" && node.type === "brace") {
+      let child2 = node.nodes[i];
+      if (child2.type === "comma" && node.type === "brace") {
         if (i === 1)
           queue2.push("");
         queue2.push("");
         continue;
       }
-      if (child.type === "close") {
+      if (child2.type === "close") {
         q.push(append(q.pop(), queue2, enclose));
         continue;
       }
-      if (child.value && child.type !== "open") {
-        queue2.push(append(queue2.pop(), child.value));
+      if (child2.value && child2.type !== "open") {
+        queue2.push(append(queue2.pop(), child2.value));
         continue;
       }
-      if (child.nodes) {
-        walk2(child, node);
+      if (child2.nodes) {
+        walk2(child2, node);
       }
     }
     return queue2;
@@ -9452,7 +10465,7 @@ function callSuccessCallback(callback, entries) {
 }
 var stream$2 = {};
 Object.defineProperty(stream$2, "__esModule", { value: true });
-const stream_1$5 = require$$0$4;
+const stream_1$5 = require$$0$5;
 const async_1$3 = async$4;
 class StreamProvider {
   constructor(_root, _settings) {
@@ -9651,7 +10664,7 @@ class Reader2 {
 reader.default = Reader2;
 var stream$1 = {};
 Object.defineProperty(stream$1, "__esModule", { value: true });
-const stream_1$3 = require$$0$4;
+const stream_1$3 = require$$0$5;
 const fsStat$1 = out$1;
 const fsWalk$2 = out$3;
 const reader_1$2 = reader;
@@ -10040,7 +11053,7 @@ class ProviderAsync extends provider_1$2.default {
 async$7.default = ProviderAsync;
 var stream = {};
 Object.defineProperty(stream, "__esModule", { value: true });
-const stream_1$1 = require$$0$4;
+const stream_1$1 = require$$0$5;
 const stream_2 = stream$1;
 const provider_1$1 = provider;
 class ProviderStream extends provider_1$1.default {
@@ -10763,16 +11776,16 @@ const ignoreFilesGlobOptions = {
   dot: true
 };
 const GITIGNORE_FILES_PATTERN = "**/.gitignore";
-const applyBaseToPattern = (pattern2, base) => isNegativePattern(pattern2) ? "!" + path$b.posix.join(base, pattern2.slice(1)) : path$b.posix.join(base, pattern2);
+const applyBaseToPattern = (pattern2, base) => isNegativePattern(pattern2) ? "!" + path$d.posix.join(base, pattern2.slice(1)) : path$d.posix.join(base, pattern2);
 const parseIgnoreFile = (file, cwd) => {
-  const base = slash(path$b.relative(cwd, path$b.dirname(file.filePath)));
+  const base = slash(path$d.relative(cwd, path$d.dirname(file.filePath)));
   return file.content.split(/\r?\n/).filter((line) => line && !line.startsWith("#")).map((pattern2) => applyBaseToPattern(pattern2, base));
 };
 const toRelativePath = (fileOrDirectory, cwd) => {
   cwd = slash(cwd);
-  if (path$b.isAbsolute(fileOrDirectory)) {
+  if (path$d.isAbsolute(fileOrDirectory)) {
     if (slash(fileOrDirectory).startsWith(cwd)) {
-      return path$b.relative(cwd, fileOrDirectory);
+      return path$d.relative(cwd, fileOrDirectory);
     }
     throw new Error(`Path ${fileOrDirectory} is not in cwd ${cwd}`);
   }
@@ -10856,7 +11869,7 @@ const createFilterFunction = (isIgnored) => {
   const seen = /* @__PURE__ */ new Set();
   return (fastGlobResult) => {
     const path2 = fastGlobResult.path || fastGlobResult;
-    const pathKey = path$b.normalize(path2);
+    const pathKey = path$d.normalize(path2);
     const seenOrIgnored = seen.has(pathKey) || isIgnored && isIgnored(path2);
     seen.add(pathKey);
     return !seenOrIgnored;
@@ -11057,6 +12070,21 @@ const collectWorkspacePackages = async (rawOptions) => {
   }
   return result;
 };
+const getPackageJsonTemplateVariables = (packageJson) => {
+  const packageName = packageJson.name ?? "";
+  let packageOrg;
+  let packageNameWithoutOrg = packageName;
+  if (packageName.includes("/")) {
+    const [splitPackageOrg, ...splitPackageName] = packageName.split("/");
+    packageOrg = splitPackageOrg;
+    packageNameWithoutOrg = splitPackageName.join("/");
+  }
+  return {
+    packageOrg: packageOrg ?? "",
+    packageName,
+    packageNameWithoutOrg
+  };
+};
 var MersenneTwister$1 = function(seed) {
   if (seed == void 0) {
     seed = (/* @__PURE__ */ new Date()).getTime();
@@ -11177,27 +12205,162 @@ try {
 } catch {
   console.log("cant polyfill getRandomValues");
 }
-const collectPublicPackageNames = async () => {
-  const publicPackages = await collectWorkspacePackages({
-    skipWorkspaceRoot: true,
-    // Will let single package repos through, in monorepos, you don't want to publish the workspace itself
-    packageJsonMatcher: {
-      private: false
-      // A package is public when its explicitly not private.
+class PackageCheckError extends Error {
+  workspacePackage;
+  constructor(reason) {
+    super(reason.message);
+    this.workspacePackage = reason.workspacePackage;
+  }
+}
+const getPackageMetadata = async (workspacePackage, registry, checkIfPublished) => {
+  let registryArgument = "";
+  if (registry) {
+    registryArgument = ` --registry ${registry}`;
+  }
+  const packageName = workspacePackage.packageJson.name;
+  const packageVersion = workspacePackage.packageJson.version;
+  if (!packageName && !packageVersion) {
+    throw new PackageCheckError({
+      workspacePackage,
+      message: `both name and version fields are empty in package.json at ${workspacePackage.packagePath}`
+    });
+  } else if (!packageName) {
+    throw new PackageCheckError({
+      workspacePackage,
+      message: `name field is empty in package.json at ${workspacePackage.packagePath}`
+    });
+  } else if (!packageVersion) {
+    throw new PackageCheckError({
+      workspacePackage,
+      message: `version field is empty in package.json at ${workspacePackage.packagePath}`
+    });
+  }
+  const variables = getPackageJsonTemplateVariables(workspacePackage.packageJson);
+  let code = void 0;
+  if (checkIfPublished) {
+    try {
+      code = await exec_2(`npm view ${packageName}@${packageVersion}${registryArgument}`);
+    } catch {
+      code = 1;
     }
-  });
-  return publicPackages.map((pkg) => pkg.packageJson.name).filter((name) => !!name);
+  }
+  return {
+    packageName,
+    packageVersion,
+    packageNameOnlyOrg: variables.packageOrg,
+    packageNameWithoutOrg: variables.packageNameWithoutOrg,
+    packagePathFromRootPackage: workspacePackage.packagePathFromRootPackage,
+    isPublished: typeof code === "number" ? code === 0 : void 0
+  };
+};
+const changeShallowCasingFromCamelToSnake = (o) => {
+  return Object.fromEntries(
+    Object.entries(o).map(([key, value]) => [
+      key.replaceAll(/[A-Z]/g, (c) => {
+        return "_" + c.toLowerCase();
+      }),
+      value
+    ])
+  );
 };
 void (async () => {
+  const registryOption = coreExports.getInput("registry");
+  const onlyPublicOption = (coreExports.getInput("only-public") || "true") === "true";
+  const checkIfPublishedOption = (coreExports.getInput("check-if-published") || "true") === "true";
+  const skipRootPackageIfMonorepoOption = (coreExports.getInput("skip-root-package-if-monorepo") || "true") === "true";
+  coreExports.info("start package collection with the following options:");
+  coreExports.info(`- registry: ${registryOption}`);
+  coreExports.info(`- only-public: ${JSON.stringify(onlyPublicOption)}`);
+  coreExports.info(`- check-if-published: ${JSON.stringify(checkIfPublishedOption)}`);
+  coreExports.info(`- skip-root-package-if-monorepo: ${JSON.stringify(skipRootPackageIfMonorepoOption)}`);
+  const matcher2 = {};
+  if (onlyPublicOption) {
+    matcher2.private = false;
+  }
   try {
-    const publicPackageNames = await collectPublicPackageNames();
-    if (publicPackageNames.length > 0) {
+    let publicWorkspacePackages = await collectWorkspacePackages({
+      skipWorkspaceRoot: skipRootPackageIfMonorepoOption,
+      // Will let single package repos through, in monorepos, you don't want to publish the workspace itself
+      packageJsonMatcher: matcher2
+    });
+    publicWorkspacePackages = publicWorkspacePackages.filter((pkg) => !!pkg.packageJson.name);
+    coreExports.startGroup("npm output:");
+    const packagePublishInformation = await Promise.allSettled(
+      publicWorkspacePackages.map(
+        (workspacePackage) => getPackageMetadata(workspacePackage, registryOption, checkIfPublishedOption)
+      )
+    );
+    coreExports.endGroup();
+    const rejectedChecks = packagePublishInformation.filter(
+      (result) => result.status === "rejected"
+    );
+    if (rejectedChecks.length > 0) {
+      coreExports.error("failed to view the following package versions in the npm registry");
+      for (const rejection of rejectedChecks) {
+        coreExports.error(rejection.reason.message);
+      }
+    }
+    const fulfilledChecks = packagePublishInformation.filter(
+      (result) => result.status === "fulfilled"
+    );
+    const alreadyPublishedPackages = checkIfPublishedOption ? fulfilledChecks.filter((result) => result.value.isPublished).map((result) => result.value) : [];
+    const nonPublishedPackages = checkIfPublishedOption ? fulfilledChecks.filter((result) => !result.value.isPublished).map((result) => result.value) : [];
+    if (publicWorkspacePackages.length > 0) {
       coreExports.startGroup("public packages found:");
-      for (const name of publicPackageNames) {
-        coreExports.info(name);
+      for (const publicWorkspacePackage of publicWorkspacePackages) {
+        coreExports.info(publicWorkspacePackage.packageJson.name);
       }
       coreExports.endGroup();
-      coreExports.setOutput("publicPackageNames", publicPackageNames);
+      coreExports.setOutput(
+        "public_packages",
+        fulfilledChecks.map((result) => changeShallowCasingFromCamelToSnake(result.value))
+      );
+      const publicPackageNames = publicWorkspacePackages.map(
+        (workspacePackage) => workspacePackage.packageJson.name
+      );
+      coreExports.setOutput("public_package_names", publicPackageNames);
+      if (alreadyPublishedPackages.length > 0) {
+        coreExports.startGroup("already_published_packages found:");
+        for (const result of alreadyPublishedPackages) {
+          coreExports.info(`${result.packageName}@${result.packageVersion}`);
+        }
+        coreExports.endGroup();
+        coreExports.setOutput(
+          "already_published_packages",
+          alreadyPublishedPackages.map(
+            (result) => changeShallowCasingFromCamelToSnake(result)
+          )
+        );
+        coreExports.setOutput(
+          "already_published_package_names",
+          alreadyPublishedPackages.map((pkg) => pkg.packageName)
+        );
+      } else if (checkIfPublishedOption) {
+        coreExports.info("no already_published_packages were found!");
+      } else {
+        coreExports.info("no already_published_packages because check-if-published is off");
+      }
+      if (nonPublishedPackages.length > 0) {
+        coreExports.startGroup("non_published_packages found:");
+        for (const result of nonPublishedPackages) {
+          coreExports.info(`${result.packageName}@${result.packageVersion}`);
+        }
+        coreExports.endGroup();
+        coreExports.setOutput(
+          "non_published_packages",
+          nonPublishedPackages.map(
+            (result) => changeShallowCasingFromCamelToSnake(result)
+          )
+        );
+        coreExports.setOutput(
+          "non_published_package_names",
+          nonPublishedPackages.map((pkg) => pkg.packageName)
+        );
+      } else if (checkIfPublishedOption) {
+        coreExports.info("no non_published_packages were found!");
+      } else {
+        coreExports.info("no non_published_packages because check-if-published is off");
+      }
     } else {
       coreExports.info("There are no public packages within this repository");
     }
@@ -11210,5 +12373,5 @@ void (async () => {
   }
 })();
 export {
-  collectPublicPackageNames
+  getPackageMetadata
 };
