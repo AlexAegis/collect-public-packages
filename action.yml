@@ -1,8 +1,8 @@
 # https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#runs-for-javascript-actions
 name: 'collect public packages'
-description:
-  'Collects every package name in a repository that is explicitly marked as
-  private: false'
+description: |
+  Collects every package name in a repository that is explicitly marked as
+  private: false. It also checks against the registry if it is published or not!
 author: 'alexaegis'
 # https://github.com/haya14busa/github-action-brandings
 branding:
@@ -16,63 +16,37 @@ inputs:
     description: |
       What npm registry to check published versions against
       (Default: undefined, it is left to npm to decide)
-  only-public:
-    description: |
-      Only return packages that are explicitly marked as private: false
-      Packages without a 'private' field are considered private
-      (Default: true)
-  check-if-published:
-    description: |
-      Whether or to use `npm view` to see if the package is published to
-      the registry.
-      (Default: true)
-  skip-root-package-if-monorepo:
-    description: |
-      For repositories with a package.json workspaces definition or
-      pnpm-workspace.yaml, the root package will not be reported unless this
-      option is explicitly turned off.
-      (Default: true)
 outputs:
   packages:
     description: |
       An array of objects describing every package
       {
-        package_name: string; 
+        package_name: string; // Example: @foo/bar
         package_version: string;
-        package_name_without_org: string;
-        package_name_only_org: string;
-        package_path_from_root_package: string;
-        is_published: boolean; // undefined if check-if-published is false
+        package_name_without_org: string; // Example: bar (no leading slash)
+        package_name_only_org: string; // Example: @foo (no trailing slash)
+        package_path_from_root_package: string; // Example: packages/bar (no trailing slash)
+        is_published: boolean;
       }
-  public_package_names:
-    description: An array of strings with the name of every public package
   already_published_packages:
     description: |
-      An array of objects describing every public package that is already published (Empty if check-if-published is false)
+      A pre-filtered array of objects describing every public package that is already published
       {
-        package_name: string; 
+        package_name: string; // Example: @foo/bar
         package_version: string;
-        package_name_without_org: string;
-        package_name_only_org: string;
-        package_path_from_root_package: string;
+        package_name_without_org: string; // Example: bar (no leading slash)
+        package_name_only_org: string; // Example: @foo (no trailing slash)
+        package_path_from_root_package: string; // Example: packages/bar (no trailing slash)
         is_published: boolean; // Always true here
       }
-  already_published_package_names:
-    description:
-      An array of strings with the name of every public package that is already
-      published
   non_published_packages:
     description: |
-      An array of objects describing every public package that is not yet published (Empty if check-if-published is false)
+      A pre-filtered array of objects describing every public package that is not yet published
       {
-        package_name: string; 
+        package_name: string; // Example: @foo/bar
         package_version: string;
-        package_name_without_org: string;
-        package_name_only_org: string;
-        package_path_from_root_package: string;
+        package_name_without_org: string; // Example: bar (no leading slash)
+        package_name_only_org: string; // Example: @foo (no trailing slash)
+        package_path_from_root_package: string; // Example: packages/bar (no trailing slash)
         is_published: boolean; // Always false here
       }
-  non_published_package_names:
-    description:
-      An array of strings with the name of every public package that is not yet
-      published

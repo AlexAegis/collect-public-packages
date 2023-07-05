@@ -12212,7 +12212,7 @@ class PackageCheckError extends Error {
     this.workspacePackage = reason.workspacePackage;
   }
 }
-const getPackageMetadata = async (workspacePackage, registry, checkIfPublished) => {
+const getPackageMetadata = async (workspacePackage, registry) => {
   let registryArgument = "";
   if (registry) {
     registryArgument = ` --registry ${registry}`;
@@ -12236,13 +12236,11 @@ const getPackageMetadata = async (workspacePackage, registry, checkIfPublished) 
     });
   }
   const variables = getPackageJsonTemplateVariables(workspacePackage.packageJson);
-  let code = void 0;
-  if (checkIfPublished) {
-    try {
-      code = await exec_2(`npm view ${packageName}@${packageVersion}${registryArgument}`);
-    } catch {
-      code = 1;
-    }
+  let code;
+  try {
+    code = await exec_2(`npm view ${packageName}@${packageVersion}${registryArgument}`);
+  } catch {
+    code = 1;
   }
   return {
     packageName,
@@ -12250,7 +12248,7 @@ const getPackageMetadata = async (workspacePackage, registry, checkIfPublished) 
     packageNameOnlyOrg: variables.packageOrg,
     packageNameWithoutOrg: variables.packageNameWithoutOrg,
     packagePathFromRootPackage: workspacePackage.packagePathFromRootPackage,
-    isPublished: typeof code === "number" ? code === 0 : void 0
+    isPublished: code === 0
   };
 };
 const changeShallowCasingFromCamelToSnake = (o) => {
@@ -12265,29 +12263,22 @@ const changeShallowCasingFromCamelToSnake = (o) => {
 };
 void (async () => {
   const registryOption = coreExports.getInput("registry");
-  const onlyPublicOption = (coreExports.getInput("only-public") || "true") === "true";
-  const checkIfPublishedOption = (coreExports.getInput("check-if-published") || "true") === "true";
-  const skipRootPackageIfMonorepoOption = (coreExports.getInput("skip-root-package-if-monorepo") || "true") === "true";
   coreExports.info("start package collection with the following options:");
   coreExports.info(`- registry: ${registryOption}`);
-  coreExports.info(`- only-public: ${JSON.stringify(onlyPublicOption)}`);
-  coreExports.info(`- check-if-published: ${JSON.stringify(checkIfPublishedOption)}`);
-  coreExports.info(`- skip-root-package-if-monorepo: ${JSON.stringify(skipRootPackageIfMonorepoOption)}`);
-  const matcher2 = {};
-  if (onlyPublicOption) {
-    matcher2.private = false;
-  }
   try {
-    let publicWorkspacePackages = await collectWorkspacePackages({
-      skipWorkspaceRoot: skipRootPackageIfMonorepoOption,
+    let workspacePackages = await collectWorkspacePackages({
+      skipWorkspaceRoot: true,
       // Will let single package repos through, in monorepos, you don't want to publish the workspace itself
-      packageJsonMatcher: matcher2
+      packageJsonMatcher: {
+        private: false
+        // A package is public when its explicitly not private.
+      }
     });
-    publicWorkspacePackages = publicWorkspacePackages.filter((pkg) => !!pkg.packageJson.name);
+    workspacePackages = workspacePackages.filter((pkg) => !!pkg.packageJson.name);
     coreExports.startGroup("npm output:");
     const packagePublishInformation = await Promise.allSettled(
-      publicWorkspacePackages.map(
-        (workspacePackage) => getPackageMetadata(workspacePackage, registryOption, checkIfPublishedOption)
+      workspacePackages.map(
+        (workspacePackage) => getPackageMetadata(workspacePackage, registryOption)
       )
     );
     coreExports.endGroup();
@@ -12303,19 +12294,19 @@ void (async () => {
     const fulfilledChecks = packagePublishInformation.filter(
       (result) => result.status === "fulfilled"
     );
-    const alreadyPublishedPackages = checkIfPublishedOption ? fulfilledChecks.filter((result) => result.value.isPublished).map((result) => result.value) : [];
-    const nonPublishedPackages = checkIfPublishedOption ? fulfilledChecks.filter((result) => !result.value.isPublished).map((result) => result.value) : [];
-    if (publicWorkspacePackages.length > 0) {
-      coreExports.startGroup("public packages found:");
-      for (const publicWorkspacePackage of publicWorkspacePackages) {
+    const alreadyPublishedPackages = fulfilledChecks.filter((result) => result.value.isPublished).map((result) => result.value);
+    const nonPublishedPackages = fulfilledChecks.filter((result) => !result.value.isPublished).map((result) => result.value);
+    if (workspacePackages.length > 0) {
+      coreExports.startGroup("packages found:");
+      for (const publicWorkspacePackage of workspacePackages) {
         coreExports.info(publicWorkspacePackage.packageJson.name);
       }
       coreExports.endGroup();
       coreExports.setOutput(
-        "public_packages",
+        "packages",
         fulfilledChecks.map((result) => changeShallowCasingFromCamelToSnake(result.value))
       );
-      const publicPackageNames = publicWorkspacePackages.map(
+      const publicPackageNames = workspacePackages.map(
         (workspacePackage) => workspacePackage.packageJson.name
       );
       coreExports.setOutput("public_package_names", publicPackageNames);
@@ -12335,10 +12326,8 @@ void (async () => {
           "already_published_package_names",
           alreadyPublishedPackages.map((pkg) => pkg.packageName)
         );
-      } else if (checkIfPublishedOption) {
-        coreExports.info("no already_published_packages were found!");
       } else {
-        coreExports.info("no already_published_packages because check-if-published is off");
+        coreExports.info("no already_published_packages were found!");
       }
       if (nonPublishedPackages.length > 0) {
         coreExports.startGroup("non_published_packages found:");
@@ -12356,13 +12345,11 @@ void (async () => {
           "non_published_package_names",
           nonPublishedPackages.map((pkg) => pkg.packageName)
         );
-      } else if (checkIfPublishedOption) {
-        coreExports.info("no non_published_packages were found!");
       } else {
-        coreExports.info("no non_published_packages because check-if-published is off");
+        coreExports.info("no non_published_packages were found!");
       }
     } else {
-      coreExports.info("There are no public packages within this repository");
+      coreExports.info("no packages found within this repository!");
     }
   } catch (error_) {
     if (error_ instanceof Error) {

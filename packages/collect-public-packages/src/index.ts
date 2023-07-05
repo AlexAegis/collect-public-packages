@@ -1,7 +1,6 @@
 import { endGroup, error, getInput, info, setFailed, setOutput, startGroup } from '@actions/core';
 import { exec } from '@actions/exec';
 import {
-	PackageJson,
 	WorkspacePackage,
 	collectWorkspacePackages,
 	getPackageJsonTemplateVariables,
@@ -42,8 +41,7 @@ class PackageCheckError extends Error implements PackageIsPublishedRejectionResu
 
 export const getPackageMetadata = async (
 	workspacePackage: WorkspacePackage,
-	registry: string,
-	checkIfPublished: boolean
+	registry: string
 ): Promise<PackageIsPublishedResult> => {
 	let registryArgument = '';
 	if (registry) {
@@ -72,14 +70,12 @@ export const getPackageMetadata = async (
 
 	const variables = getPackageJsonTemplateVariables(workspacePackage.packageJson);
 
-	let code: number | undefined = undefined;
+	let code: number;
 
-	if (checkIfPublished) {
-		try {
-			code = await exec(`npm view ${packageName}@${packageVersion}${registryArgument}`);
-		} catch {
-			code = 1;
-		}
+	try {
+		code = await exec(`npm view ${packageName}@${packageVersion}${registryArgument}`);
+	} catch {
+		code = 1;
 	}
 
 	return {
@@ -88,7 +84,7 @@ export const getPackageMetadata = async (
 		packageNameOnlyOrg: variables.packageOrg,
 		packageNameWithoutOrg: variables.packageNameWithoutOrg,
 		packagePathFromRootPackage: workspacePackage.packagePathFromRootPackage,
-		isPublished: typeof code === 'number' ? code === 0 : undefined,
+		isPublished: code === 0,
 	};
 };
 
@@ -105,25 +101,16 @@ const changeShallowCasingFromCamelToSnake = (o: PackageIsPublishedResult) => {
 
 void (async () => {
 	const registryOption = getInput('registry');
-	const onlyPublicOption = (getInput('only-public') || 'true') === 'true';
-	const checkIfPublishedOption = (getInput('check-if-published') || 'true') === 'true';
-	const skipRootPackageIfMonorepoOption =
-		(getInput('skip-root-package-if-monorepo') || 'true') === 'true';
 
 	info('start package collection with the following options:');
 	info(`- registry: ${registryOption}`);
-	info(`- only-public: ${JSON.stringify(onlyPublicOption)}`);
-	info(`- check-if-published: ${JSON.stringify(checkIfPublishedOption)}`);
-	info(`- skip-root-package-if-monorepo: ${JSON.stringify(skipRootPackageIfMonorepoOption)}`);
 
-	const matcher: PackageJson = {};
-	if (onlyPublicOption) {
-		matcher.private = false; // A package is public when its explicitly not private.
-	}
 	try {
 		let workspacePackages = await collectWorkspacePackages({
-			skipWorkspaceRoot: skipRootPackageIfMonorepoOption, // Will let single package repos through, in monorepos, you don't want to publish the workspace itself
-			packageJsonMatcher: matcher,
+			skipWorkspaceRoot: true, // Will let single package repos through, in monorepos, you don't want to publish the workspace itself
+			packageJsonMatcher: {
+				private: false, // A package is public when its explicitly not private.
+			},
 		});
 
 		workspacePackages = workspacePackages.filter((pkg) => !!pkg.packageJson.name);
@@ -131,7 +118,7 @@ void (async () => {
 		startGroup('npm output:');
 		const packagePublishInformation = await Promise.allSettled(
 			workspacePackages.map((workspacePackage) =>
-				getPackageMetadata(workspacePackage, registryOption, checkIfPublishedOption)
+				getPackageMetadata(workspacePackage, registryOption)
 			)
 		);
 		endGroup();
@@ -152,18 +139,12 @@ void (async () => {
 				result.status === 'fulfilled'
 		);
 
-		const alreadyPublishedPackages = checkIfPublishedOption
-			? fulfilledChecks
-					.filter((result) => result.value.isPublished)
-					.map((result) => result.value)
-			: [];
-
-		const nonPublishedPackages = checkIfPublishedOption
-			? fulfilledChecks
-					.filter((result) => !result.value.isPublished)
-					.map((result) => result.value)
-			: [];
-
+		const alreadyPublishedPackages = fulfilledChecks
+			.filter((result) => result.value.isPublished)
+			.map((result) => result.value);
+		const nonPublishedPackages = fulfilledChecks
+			.filter((result) => !result.value.isPublished)
+			.map((result) => result.value);
 		if (workspacePackages.length > 0) {
 			startGroup('packages found:');
 			for (const publicWorkspacePackage of workspacePackages) {
@@ -197,10 +178,8 @@ void (async () => {
 					'already_published_package_names',
 					alreadyPublishedPackages.map((pkg) => pkg.packageName)
 				);
-			} else if (checkIfPublishedOption) {
-				info('no already_published_packages were found!');
 			} else {
-				info('no already_published_packages because check-if-published is off');
+				info('no already_published_packages were found!');
 			}
 
 			if (nonPublishedPackages.length > 0) {
@@ -219,10 +198,8 @@ void (async () => {
 					'non_published_package_names',
 					nonPublishedPackages.map((pkg) => pkg.packageName)
 				);
-			} else if (checkIfPublishedOption) {
-				info('no non_published_packages were found!');
 			} else {
-				info('no non_published_packages because check-if-published is off');
+				info('no non_published_packages were found!');
 			}
 		} else {
 			info('no packages found within this repository!');
