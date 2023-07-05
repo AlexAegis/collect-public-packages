@@ -2,7 +2,7 @@
 name: 'collect public packages'
 description: |
   Collects every package name in a repository that is explicitly marked as
-  private: false. It also checks against the registry if it is published or not!
+  private: false and checks if it is published
 author: 'alexaegis'
 # https://github.com/haya14busa/github-action-brandings
 branding:
