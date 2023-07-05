@@ -23,11 +23,13 @@ jobs:
         id: collect_packages
         uses: ./
   print:
+    name: |
+      print ${{ matrix.package.package_name }}@${{ matrix.package.package_version }}
     runs-on: ubuntu-latest
-    if: needs.collect.outputs.non_published_packages
+    if: needs.collect.outputs.public_packages
     strategy:
       matrix:
-        package: ${{ fromJSON(needs.collect.outputs.non_published_packages) }}
+        package: ${{ fromJSON(needs.collect.outputs.public_packages) }}
     needs: [collect]
     steps:
       - name: print package data

@@ -128,7 +128,7 @@ void (async () => {
 		);
 
 		if (rejectedChecks.length > 0) {
-			error('failed to view the following package versions in the npm registry');
+			info('failed to view the following package versions in the npm registry');
 			for (const rejection of rejectedChecks) {
 				error((rejection.reason as PackageCheckError).message);
 			}
@@ -146,7 +146,7 @@ void (async () => {
 			.filter((result) => !result.value.isPublished)
 			.map((result) => result.value);
 		if (workspacePackages.length > 0) {
-			startGroup('packages found:');
+			startGroup('public_packages found:');
 			for (const publicWorkspacePackage of workspacePackages) {
 				// Already filtered out
 				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -154,7 +154,7 @@ void (async () => {
 			}
 			endGroup();
 			setOutput(
-				'packages',
+				'public_packages',
 				fulfilledChecks.map((result) => changeShallowCasingFromCamelToSnake(result.value))
 			);
 			const publicPackageNames = workspacePackages.map(

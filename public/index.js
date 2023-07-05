@@ -12286,7 +12286,7 @@ void (async () => {
       (result) => result.status === "rejected"
     );
     if (rejectedChecks.length > 0) {
-      coreExports.error("failed to view the following package versions in the npm registry");
+      coreExports.info("failed to view the following package versions in the npm registry");
       for (const rejection of rejectedChecks) {
         coreExports.error(rejection.reason.message);
       }
@@ -12297,13 +12297,13 @@ void (async () => {
     const alreadyPublishedPackages = fulfilledChecks.filter((result) => result.value.isPublished).map((result) => result.value);
     const nonPublishedPackages = fulfilledChecks.filter((result) => !result.value.isPublished).map((result) => result.value);
     if (workspacePackages.length > 0) {
-      coreExports.startGroup("packages found:");
+      coreExports.startGroup("public_packages found:");
       for (const publicWorkspacePackage of workspacePackages) {
         coreExports.info(publicWorkspacePackage.packageJson.name);
       }
       coreExports.endGroup();
       coreExports.setOutput(
-        "packages",
+        "public_packages",
         fulfilledChecks.map((result) => changeShallowCasingFromCamelToSnake(result.value))
       );
       const publicPackageNames = workspacePackages.map(

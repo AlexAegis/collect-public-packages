@@ -150,6 +150,10 @@ importers:
         specifier: ^5.1.6
         version: 5.1.6
 
+  fixtures/bar: {}
+
+  fixtures/foo: {}
+
   packages/collect-public-packages:
     dependencies:
       '@actions/core':

@@ -17,9 +17,9 @@ inputs:
       What npm registry to check published versions against
       (Default: undefined, it is left to npm to decide)
 outputs:
-  packages:
+  public_packages:
     description: |
-      An array of objects describing every package
+      An array of objects describing every public package
       {
         package_name: string; // Example: @foo/bar
         package_version: string;

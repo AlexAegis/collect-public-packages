@@ -7,11 +7,14 @@
 This action scans your workspace (Based on `pnpm-workspace.yaml` and the
 `workspace` propery in your `package.json` file) for packages and outputs the
 name of every package where the property `private` is explicitly set to `false`.
+It will then check if the package at that version exists on the `registry`, and
+partitions the result based on that.
 
 ![banner](./docs/banner.png)
 
-My usecase is to construct a job matrix strategy to release every public package
-in a repository.
+## Use
+
+Construct a job matrix strategy to release every public package in a repository.
 
 A job matrix would fail to construct if its array is empty. For this reason this
 action only outputs non-empty arrays. If there are no public packages within the
@@ -22,7 +25,7 @@ condition for the job.
 
 ![case-no-public](./docs/case-no-public.png)
 
-## Example workflow
+### Example workflow
 
 > For a real-world usecase check the workflows of this repository!
 
@@ -38,25 +41,35 @@ jobs:
   collect:
     runs-on: ubuntu-latest
     outputs:
-      publicPackageNames:
-        ${{ steps.collectPackages.outputs.publicPackageNames }}
+      public_packages: ${{ steps.collect_packages.outputs.public_packages }}
+      already_published_packages:
+        ${{ steps.collect_packages.outputs.already_published_packages }}
+      non_published_packages:
+        ${{ steps.collect_packages.outputs.non_published_packages }}
     steps:
       - name: checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 1
-      - name: collect public packages
-        id: collectPackages
+      - name: collect packages
+        id: collect_packages
         uses: AlexAegis/collect-public-packages@v1
   print:
+    name: |
+      print ${{ matrix.package.package_name }}@${{ matrix.package.package_version }}
     runs-on: ubuntu-latest
-    if: needs.collect.outputs.publicPackageNames
+    if: needs.collect.outputs.public_packages
     strategy:
       matrix:
-        package: ${{ fromJSON(needs.collect.outputs.publicPackageNames) }}
+        package: ${{ fromJSON(needs.collect.outputs.public_packages) }}
     needs: [collect]
     steps:
-      - name: print package name
+      - name: print package data
         run: |
-          echo package: ${{ matrix.package }}
+          echo package_name: ${{ matrix.package.package_name }}
+          echo package_version: ${{ matrix.package.package_version }}
+          echo package_name_without_org: ${{ matrix.package.package_name_without_org }}
+          echo package_name_only_org: ${{ matrix.package.package_name_only_org }}
+          echo package_path_from_root_package: ${{ matrix.package.package_path_from_root_package }}
+          echo is_published: ${{ matrix.package.is_published }}
 ```
