@@ -12,7 +12,7 @@ import require$$0$4 from "string_decoder";
 import require$$2$2 from "child_process";
 import require$$6 from "timers";
 import fs$a, { existsSync } from "node:fs";
-import path$d, { join, relative, normalize } from "node:path";
+import path$d, { normalize, join, relative } from "node:path";
 import { readFile } from "node:fs/promises";
 import require$$0$5 from "stream";
 import process$1 from "node:process";
@@ -29,10 +29,7 @@ function getAugmentedNamespace(n) {
   if (typeof f2 == "function") {
     var a = function a2() {
       if (this instanceof a2) {
-        var args = [null];
-        args.push.apply(args, arguments);
-        var Ctor = Function.bind.apply(f2, args);
-        return new Ctor();
+        return Reflect.construct(f2, arguments, this.constructor);
       }
       return f2.apply(this, arguments);
     };
@@ -11944,12 +11941,6 @@ const globby = normalizeArguments(async (patterns, options) => {
 const PACKAGE_JSON_NAME = "package.json";
 const PNPM_WORKSPACE_FILE_NAME = "pnpm-workspace.yaml";
 const NODE_MODULES_DIRECTORY_NAME = "node_modules";
-const normalizeGetRootPackageJsonOptions = (options) => {
-  return {
-    ...normalizeCwdOption(options),
-    ...normalizeLoggerOption(options)
-  };
-};
 const collectPackageJsonPathsUpDirectoryTree = (cwd = process.cwd()) => {
   return collectPackageJsonPathsUpDirectoryTreeInternal(cwd);
 };
@@ -11978,6 +11969,12 @@ const normalizePackageJsonWorkspacesField = (packageJsonWorkspaces) => {
   } else {
     return [];
   }
+};
+const normalizeGetRootPackageJsonOptions = (options) => {
+  return {
+    ...normalizeCwdOption(options),
+    ...normalizeLoggerOption(options)
+  };
 };
 const getRootPackageJson = async (rawOptions) => {
   const options = normalizeGetRootPackageJsonOptions(rawOptions);

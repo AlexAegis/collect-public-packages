@@ -1,4 +1,4 @@
-import { WorkspacePackage } from '@alexaegis/workspace-tools';
+import type { WorkspacePackage } from '@alexaegis/workspace-tools';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 const setOutputMock = vi.hoisted(() => vi.fn());
@@ -24,7 +24,7 @@ const collectWorkspacePackagesMock = vi.hoisted(() =>
 				packagePathFromRootPackage: '../../',
 			},
 		];
-	})
+	}),
 );
 
 vi.mock('@actions/core', () => {

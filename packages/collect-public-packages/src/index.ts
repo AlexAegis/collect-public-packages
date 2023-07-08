@@ -1,9 +1,9 @@
 import { endGroup, error, getInput, info, setFailed, setOutput, startGroup } from '@actions/core';
 import { exec } from '@actions/exec';
 import {
-	WorkspacePackage,
 	collectWorkspacePackages,
 	getPackageJsonTemplateVariables,
+	type WorkspacePackage,
 } from '@alexaegis/workspace-tools';
 
 // Something is using crypto probably through fs and it fails on gh-actions
@@ -41,7 +41,7 @@ class PackageCheckError extends Error implements PackageIsPublishedRejectionResu
 
 export const getPackageMetadata = async (
 	workspacePackage: WorkspacePackage,
-	registry: string
+	registry: string,
 ): Promise<PackageIsPublishedResult> => {
 	let registryArgument = '';
 	if (registry) {
@@ -95,7 +95,7 @@ const changeShallowCasingFromCamelToSnake = (o: PackageIsPublishedResult) => {
 				return '_' + c.toLowerCase();
 			}),
 			value,
-		])
+		]),
 	);
 };
 
@@ -118,13 +118,13 @@ void (async () => {
 		startGroup('npm output:');
 		const packagePublishInformation = await Promise.allSettled(
 			workspacePackages.map((workspacePackage) =>
-				getPackageMetadata(workspacePackage, registryOption)
-			)
+				getPackageMetadata(workspacePackage, registryOption),
+			),
 		);
 		endGroup();
 
 		const rejectedChecks = packagePublishInformation.filter(
-			(result): result is PromiseRejectedResult => result.status === 'rejected'
+			(result): result is PromiseRejectedResult => result.status === 'rejected',
 		);
 
 		if (rejectedChecks.length > 0) {
@@ -136,7 +136,7 @@ void (async () => {
 
 		const fulfilledChecks = packagePublishInformation.filter(
 			(result): result is PromiseFulfilledResult<PackageIsPublishedResult> =>
-				result.status === 'fulfilled'
+				result.status === 'fulfilled',
 		);
 
 		const alreadyPublishedPackages = fulfilledChecks
@@ -155,10 +155,10 @@ void (async () => {
 			endGroup();
 			setOutput(
 				'public_packages',
-				fulfilledChecks.map((result) => changeShallowCasingFromCamelToSnake(result.value))
+				fulfilledChecks.map((result) => changeShallowCasingFromCamelToSnake(result.value)),
 			);
 			const publicPackageNames = workspacePackages.map(
-				(workspacePackage) => workspacePackage.packageJson.name
+				(workspacePackage) => workspacePackage.packageJson.name,
 			);
 			setOutput('public_package_names', publicPackageNames);
 
@@ -171,12 +171,12 @@ void (async () => {
 				setOutput(
 					'already_published_packages',
 					alreadyPublishedPackages.map((result) =>
-						changeShallowCasingFromCamelToSnake(result)
-					)
+						changeShallowCasingFromCamelToSnake(result),
+					),
 				);
 				setOutput(
 					'already_published_package_names',
-					alreadyPublishedPackages.map((pkg) => pkg.packageName)
+					alreadyPublishedPackages.map((pkg) => pkg.packageName),
 				);
 			} else {
 				info('no already_published_packages were found!');
@@ -191,12 +191,12 @@ void (async () => {
 				setOutput(
 					'non_published_packages',
 					nonPublishedPackages.map((result) =>
-						changeShallowCasingFromCamelToSnake(result)
-					)
+						changeShallowCasingFromCamelToSnake(result),
+					),
 				);
 				setOutput(
 					'non_published_package_names',
-					nonPublishedPackages.map((pkg) => pkg.packageName)
+					nonPublishedPackages.map((pkg) => pkg.packageName),
 				);
 			} else {
 				info('no non_published_packages were found!');
