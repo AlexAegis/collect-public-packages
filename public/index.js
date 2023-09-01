@@ -11,9 +11,9 @@ import require$$0$2 from "util";
 import require$$0$4 from "string_decoder";
 import require$$2$2 from "child_process";
 import require$$6 from "timers";
-import fs$a, { existsSync } from "node:fs";
-import path$d, { normalize, join, relative } from "node:path";
 import { readFile } from "node:fs/promises";
+import path$d, { normalize, join, relative } from "node:path";
+import fs$a, { existsSync } from "node:fs";
 import require$$0$5 from "stream";
 import process$1 from "node:process";
 import { fileURLToPath } from "node:url";
@@ -3329,10 +3329,34 @@ function formatTemplate(settings2, template, values, hideUnsetPlaceholder = fals
       }
     }
   };
+  const defaultStyle = null;
   return templateString.replace(/{{(.+?)}}/g, (_, placeholder) => {
-    const value = values[placeholder] != null ? values[placeholder] : hideUnsetPlaceholder ? "" : _;
-    return settings2.stylePrettyLogs ? styleWrap(value, settings2?.prettyLogStyles?.[placeholder]) + ansiColorWrap("", prettyLogStyles.reset) : value;
+    const value = values[placeholder] != null ? String(values[placeholder]) : hideUnsetPlaceholder ? "" : _;
+    return settings2.stylePrettyLogs ? styleWrap(value, settings2?.prettyLogStyles?.[placeholder] ?? defaultStyle) + ansiColorWrap("", prettyLogStyles.reset) : value;
   });
+}
+function formatNumberAddZeros(value, digits = 2, addNumber = 0) {
+  if (value != null && isNaN(value)) {
+    return "";
+  }
+  value = value != null ? value + addNumber : value;
+  return digits === 2 ? value == null ? "--" : value < 10 ? "0" + value : value.toString() : value == null ? "---" : value < 10 ? "00" + value : value < 100 ? "0" + value : value.toString();
+}
+function urlToObject(url) {
+  return {
+    href: url.href,
+    protocol: url.protocol,
+    username: url.username,
+    password: url.password,
+    host: url.host,
+    hostname: url.hostname,
+    port: url.port,
+    pathname: url.pathname,
+    search: url.search,
+    searchParams: [...url.searchParams].map(([key, value]) => ({ key, value })),
+    hash: url.hash,
+    origin: url.origin
+  };
 }
 function jsonStringifyRecursive(obj) {
   const cache = /* @__PURE__ */ new Set();
@@ -3381,7 +3405,7 @@ function isBoolean$1(arg) {
   return typeof arg === "boolean";
 }
 function isUndefined(arg) {
-  return arg == null;
+  return arg === void 0;
 }
 function stylizeNoColor(str2) {
   return str2;
@@ -3486,7 +3510,7 @@ function formatValue(ctx, value, recurseTimes = 0) {
         return ctx.stylize(RegExp.prototype.toString.call(value), "regexp");
       }
       if (isDate(value)) {
-        return ctx.stylize(Date.prototype.toString.call(value), "date");
+        return ctx.stylize(Date.prototype.toISOString.call(value), "date");
       }
       if (isError$1(value)) {
         return formatError$1(value);
@@ -3538,8 +3562,8 @@ function formatValue(ctx, value, recurseTimes = 0) {
   return reduceToSingleString(output, base, braces2);
 }
 function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array2) {
-  let name, str2, desc;
-  desc = { value: void 0 };
+  let name, str2;
+  let desc = { value: void 0 };
   try {
     desc.value = value[key];
   } catch (e) {
@@ -3621,10 +3645,12 @@ function reduceToSingleString(output, base, braces2) {
 function _extend(origin, add) {
   if (!add || !isObject$3(add))
     return origin;
+  const clonedOrigin = { ...origin };
+  const clonedAdd = { ...add };
   const keys = Object.keys(add);
   let i = keys.length;
   while (i--) {
-    origin[keys[i]] = add[keys[i]];
+    clonedOrigin[keys[i]] = clonedAdd[keys[i]];
   }
   return origin;
 }
@@ -3753,6 +3779,17 @@ function formatWithOptions(inspectOptions, ...args) {
   }
   return str2;
 }
+const Runtime = {
+  getCallerStackFrame,
+  getErrorTrace,
+  getMeta,
+  transportJSON,
+  transportFormatted,
+  isBuffer,
+  isError,
+  prettyFormatLogObj,
+  prettyFormatErrorObj
+};
 const meta = {
   runtime: ![typeof window, typeof document].includes("undefined") ? "Browser" : "Generic",
   browser: globalThis?.["navigator"]?.userAgent
@@ -3778,7 +3815,7 @@ function getErrorTrace(error2) {
   }, []);
 }
 function stackLineToStackFrame(line) {
-  const href = globalThis.location.origin;
+  const href = globalThis?.location?.origin;
   const pathResult = {
     fullFilePath: void 0,
     fileName: void 0,
@@ -3819,7 +3856,12 @@ function prettyFormatErrorObj(error2, settings2) {
   });
   const placeholderValuesError = {
     errorName: ` ${error2.name} `,
-    errorMessage: error2.message,
+    errorMessage: Object.getOwnPropertyNames(error2).reduce((result, key) => {
+      if (key !== "stack") {
+        result.push(error2[key]);
+      }
+      return result;
+    }, []).join(", "),
     errorStack: errorStackStr.join("\n")
   };
   return formatTemplate(settings2, settings2.prettyErrorTemplate, placeholderValuesError);
@@ -3833,25 +3875,13 @@ function transportJSON(json2) {
   console.log(jsonStringifyRecursive(json2));
 }
 function isBuffer(arg) {
-  return arg ? void 0 : void 0;
-}
-function formatNumberAddZeros(value, digits = 2, addNumber = 0) {
-  if (value != null && isNaN(value)) {
-    return "";
-  }
-  value = value != null ? value + addNumber : value;
-  return digits === 2 ? value == null ? "--" : value < 10 ? "0" + value : value.toString() : value == null ? "---" : value < 10 ? "00" + value : value < 100 ? "0" + value : value.toString();
+  return arg ? false : false;
 }
 class BaseLogger {
   constructor(settings2, logObj, stackDepthLevel = 4) {
     this.logObj = logObj;
     this.stackDepthLevel = stackDepthLevel;
-    const isBrowser = ![typeof window, typeof document].includes("undefined");
-    const isNode = Object.prototype.toString.call(typeof process !== "undefined" ? process : 0) === "[object process]";
-    this.runtime = isBrowser ? "browser" : isNode ? "nodejs" : "unknown";
-    const isBrowserBlinkEngine = isBrowser ? ((window?.["chrome"] || window.Intl && Intl?.["v8BreakIterator"]) && "CSS" in window) != null : false;
-    const isSafari = isBrowser ? /^((?!chrome|android).)*safari/i.test(navigator?.userAgent) : false;
-    this.stackDepthLevel = isSafari ? 4 : this.stackDepthLevel;
+    this.runtime = Runtime;
     this.settings = {
       type: settings2?.type ?? "pretty",
       name: settings2?.name,
@@ -3902,13 +3932,13 @@ class BaseLogger {
         mask: settings2?.overwrite?.mask,
         toLogObj: settings2?.overwrite?.toLogObj,
         addMeta: settings2?.overwrite?.addMeta,
+        addPlaceholders: settings2?.overwrite?.addPlaceholders,
         formatMeta: settings2?.overwrite?.formatMeta,
         formatLogObj: settings2?.overwrite?.formatLogObj,
         transportFormatted: settings2?.overwrite?.transportFormatted,
         transportJSON: settings2?.overwrite?.transportJSON
       }
     };
-    this.settings.stylePrettyLogs = this.settings.stylePrettyLogs && isBrowser && !isBrowserBlinkEngine ? false : this.settings.stylePrettyLogs;
   }
   log(logLevelId, logLevelName, ...args) {
     if (logLevelId < this.settings.minLevel) {
@@ -3929,12 +3959,12 @@ class BaseLogger {
     }
     if (this.settings.type === "pretty") {
       logMetaMarkup = logMetaMarkup ?? this._prettyFormatLogObjMeta(logObjWithMeta?.[this.settings.metaProperty]);
-      logArgsAndErrorsMarkup = logArgsAndErrorsMarkup ?? prettyFormatLogObj(maskedArgs, this.settings);
+      logArgsAndErrorsMarkup = logArgsAndErrorsMarkup ?? this.runtime.prettyFormatLogObj(maskedArgs, this.settings);
     }
     if (logMetaMarkup != null && logArgsAndErrorsMarkup != null) {
-      this.settings.overwrite?.transportFormatted != null ? this.settings.overwrite?.transportFormatted(logMetaMarkup, logArgsAndErrorsMarkup.args, logArgsAndErrorsMarkup.errors, this.settings) : transportFormatted(logMetaMarkup, logArgsAndErrorsMarkup.args, logArgsAndErrorsMarkup.errors, this.settings);
+      this.settings.overwrite?.transportFormatted != null ? this.settings.overwrite?.transportFormatted(logMetaMarkup, logArgsAndErrorsMarkup.args, logArgsAndErrorsMarkup.errors, this.settings) : this.runtime.transportFormatted(logMetaMarkup, logArgsAndErrorsMarkup.args, logArgsAndErrorsMarkup.errors, this.settings);
     } else {
-      this.settings.overwrite?.transportJSON != null ? this.settings.overwrite?.transportJSON(logObjWithMeta) : this.settings.type !== "hidden" ? transportJSON(logObjWithMeta) : void 0;
+      this.settings.overwrite?.transportJSON != null ? this.settings.overwrite?.transportJSON(logObjWithMeta) : this.settings.type !== "hidden" ? this.runtime.transportJSON(logObjWithMeta) : void 0;
     }
     if (this.settings.attachedTransports != null && this.settings.attachedTransports.length > 0) {
       this.settings.attachedTransports.forEach((transportLogger) => {
@@ -3966,39 +3996,80 @@ class BaseLogger {
     if (seen.includes(source)) {
       return { ...source };
     }
-    if (typeof source === "object" && source != null) {
+    if (typeof source === "object" && source !== null) {
       seen.push(source);
     }
-    return isBuffer(source) ? source : source instanceof Map ? new Map(source) : source instanceof Set ? new Set(source) : Array.isArray(source) ? source.map((item) => this._recursiveCloneAndMaskValuesOfKeys(item, keys, seen)) : source instanceof Date ? new Date(source.getTime()) : isError(source) ? Object.getOwnPropertyNames(source).reduce((o, prop) => {
-      o[prop] = keys.includes(this.settings?.maskValuesOfKeysCaseInsensitive !== true ? prop : prop.toLowerCase()) ? this.settings.maskPlaceholder : this._recursiveCloneAndMaskValuesOfKeys(source[prop], keys, seen);
-      return o;
-    }, this._cloneError(source)) : source != null && typeof source === "object" ? Object.getOwnPropertyNames(source).reduce((o, prop) => {
-      o[prop] = keys.includes(this.settings?.maskValuesOfKeysCaseInsensitive !== true ? prop : prop.toLowerCase()) ? this.settings.maskPlaceholder : this._recursiveCloneAndMaskValuesOfKeys(source[prop], keys, seen);
-      return o;
-    }, Object.create(Object.getPrototypeOf(source))) : ((source2) => {
-      this.settings?.maskValuesRegEx?.forEach((regEx) => {
-        source2 = source2?.toString()?.replace(regEx, this.settings.maskPlaceholder);
-      });
-      return source2;
-    })(source);
+    if (this.runtime.isError(source) || this.runtime.isBuffer(source)) {
+      return source;
+    } else if (source instanceof Map) {
+      return new Map(source);
+    } else if (source instanceof Set) {
+      return new Set(source);
+    } else if (Array.isArray(source)) {
+      return source.map((item) => this._recursiveCloneAndMaskValuesOfKeys(item, keys, seen));
+    } else if (source instanceof Date) {
+      return new Date(source.getTime());
+    } else if (source instanceof URL) {
+      return urlToObject(source);
+    } else if (source !== null && typeof source === "object") {
+      const baseObject = this.runtime.isError(source) ? this._cloneError(source) : Object.create(Object.getPrototypeOf(source));
+      return Object.getOwnPropertyNames(source).reduce((o, prop) => {
+        o[prop] = keys.includes(this.settings?.maskValuesOfKeysCaseInsensitive !== true ? prop : prop.toLowerCase()) ? this.settings.maskPlaceholder : this._recursiveCloneAndMaskValuesOfKeys(source[prop], keys, seen);
+        return o;
+      }, baseObject);
+    } else {
+      if (typeof source === "string") {
+        let modifiedSource = source;
+        for (const regEx of this.settings?.maskValuesRegEx || []) {
+          modifiedSource = modifiedSource.replace(regEx, this.settings?.maskPlaceholder || "");
+        }
+        return modifiedSource;
+      }
+      return source;
+    }
   }
   _recursiveCloneAndExecuteFunctions(source, seen = []) {
-    if (seen.includes(source)) {
-      return { ...source };
+    if (this.isObjectOrArray(source) && seen.includes(source)) {
+      return this.shallowCopy(source);
     }
-    if (typeof source === "object") {
+    if (this.isObjectOrArray(source)) {
       seen.push(source);
     }
-    return Array.isArray(source) ? source.map((item) => this._recursiveCloneAndExecuteFunctions(item, seen)) : source instanceof Date ? new Date(source.getTime()) : source && typeof source === "object" ? Object.getOwnPropertyNames(source).reduce((o, prop) => {
-      Object.defineProperty(o, prop, Object.getOwnPropertyDescriptor(source, prop));
-      o[prop] = typeof source[prop] === "function" ? source[prop]() : this._recursiveCloneAndExecuteFunctions(source[prop], seen);
-      return o;
-    }, Object.create(Object.getPrototypeOf(source))) : source;
+    if (Array.isArray(source)) {
+      return source.map((item) => this._recursiveCloneAndExecuteFunctions(item, seen));
+    } else if (source instanceof Date) {
+      return new Date(source.getTime());
+    } else if (this.isObject(source)) {
+      return Object.getOwnPropertyNames(source).reduce((o, prop) => {
+        const descriptor = Object.getOwnPropertyDescriptor(source, prop);
+        if (descriptor) {
+          Object.defineProperty(o, prop, descriptor);
+          const value = source[prop];
+          o[prop] = typeof value === "function" ? value() : this._recursiveCloneAndExecuteFunctions(value, seen);
+        }
+        return o;
+      }, Object.create(Object.getPrototypeOf(source)));
+    } else {
+      return source;
+    }
+  }
+  isObjectOrArray(value) {
+    return typeof value === "object" && value !== null;
+  }
+  isObject(value) {
+    return typeof value === "object" && !Array.isArray(value) && value !== null;
+  }
+  shallowCopy(source) {
+    if (Array.isArray(source)) {
+      return [...source];
+    } else {
+      return { ...source };
+    }
   }
   _toLogObj(args, clonedLogObj = {}) {
-    args = args?.map((arg) => isError(arg) ? this._toErrorObject(arg) : arg);
+    args = args?.map((arg) => this.runtime.isError(arg) ? this._toErrorObject(arg) : arg);
     if (this.settings.argumentsArrayName == null) {
-      if (args.length === 1 && !Array.isArray(args[0]) && isBuffer(args[0]) !== true && !(args[0] instanceof Date)) {
+      if (args.length === 1 && !Array.isArray(args[0]) && this.runtime.isBuffer(args[0]) !== true && !(args[0] instanceof Date)) {
         clonedLogObj = typeof args[0] === "object" && args[0] != null ? { ...args[0], ...clonedLogObj } : { 0: args[0], ...clonedLogObj };
       } else {
         clonedLogObj = { ...clonedLogObj, ...args };
@@ -4012,31 +4083,24 @@ class BaseLogger {
     return clonedLogObj;
   }
   _cloneError(error2) {
-    const ErrorConstructor = error2.constructor;
-    const newError = new ErrorConstructor(error2.message);
-    Object.assign(newError, error2);
-    const propertyNames = Object.getOwnPropertyNames(newError);
-    for (const propName of propertyNames) {
-      const propDesc = Object.getOwnPropertyDescriptor(newError, propName);
-      if (propDesc) {
-        propDesc.writable = true;
-        Object.defineProperty(newError, propName, propDesc);
-      }
-    }
-    return newError;
+    const cloned = new error2.constructor();
+    Object.getOwnPropertyNames(error2).forEach((key) => {
+      cloned[key] = error2[key];
+    });
+    return cloned;
   }
   _toErrorObject(error2) {
     return {
       nativeError: error2,
       name: error2.name ?? "Error",
       message: error2.message,
-      stack: getErrorTrace(error2)
+      stack: this.runtime.getErrorTrace(error2)
     };
   }
   _addMetaToLogObj(logObj, logLevelId, logLevelName) {
     return {
       ...logObj,
-      [this.settings.metaProperty]: getMeta(logLevelId, logLevelName, this.stackDepthLevel, this.settings.hideLogPositionForProduction, this.settings.name, this.settings.parentNames)
+      [this.settings.metaProperty]: this.runtime.getMeta(logLevelId, logLevelName, this.stackDepthLevel, this.settings.hideLogPositionForProduction, this.settings.name, this.settings.parentNames)
     };
   }
   _prettyFormatLogObjMeta(logObjMeta) {
@@ -4078,12 +4142,20 @@ class BaseLogger {
     placeholderValues["name"] = logObjMeta?.name != null || parentNamesString != null ? (parentNamesString ?? "") + logObjMeta?.name : "";
     placeholderValues["nameWithDelimiterPrefix"] = placeholderValues["name"].length > 0 ? this.settings.prettyErrorLoggerNameDelimiter + placeholderValues["name"] : "";
     placeholderValues["nameWithDelimiterSuffix"] = placeholderValues["name"].length > 0 ? placeholderValues["name"] + this.settings.prettyErrorLoggerNameDelimiter : "";
+    if (this.settings.overwrite?.addPlaceholders != null) {
+      this.settings.overwrite?.addPlaceholders(logObjMeta, placeholderValues);
+    }
     return formatTemplate(this.settings, template, placeholderValues);
   }
 }
 class Logger extends BaseLogger {
   constructor(settings2, logObj) {
-    super(settings2, logObj, 5);
+    const isBrowser = typeof window !== "undefined" && typeof document !== "undefined";
+    const isBrowserBlinkEngine = isBrowser ? window.chrome !== void 0 && window.CSS !== void 0 && window.CSS.supports("color", "green") : false;
+    const isSafari = isBrowser ? /^((?!chrome|android).)*safari/i.test(navigator.userAgent) : false;
+    settings2 = settings2 || {};
+    settings2.stylePrettyLogs = settings2.stylePrettyLogs && isBrowser && !isBrowserBlinkEngine ? false : settings2.stylePrettyLogs;
+    super(settings2, logObj, isSafari ? 4 : 5);
   }
   log(logLevelId, logLevelName, ...args) {
     return super.log(logLevelId, logLevelName, ...args);
@@ -6167,6 +6239,11 @@ const normalizeCwdOption = (options) => {
     cwd: options?.cwd ?? process.cwd()
   };
 };
+const normalizeDirectoryDepthOption = (options) => {
+  return {
+    depth: options?.depth ?? Number.POSITIVE_INFINITY
+  };
+};
 const readJson = async (path2, options) => {
   if (path2 === void 0) {
     return void 0;
@@ -6205,6 +6282,43 @@ const readYaml = async (path2) => {
     return void 0;
   }
   return result;
+};
+const normalizeCollectFileDirnamesUpDirectoryTreeOptions = (options) => {
+  return {
+    ...normalizeCwdOption(options),
+    ...normalizeDirectoryDepthOption(options),
+    maxPackages: options?.maxPackages ?? 2,
+    maxResults: options?.maxResults ?? Number.POSITIVE_INFINITY
+  };
+};
+const PACKAGE_JSON_NAME = "package.json";
+const PNPM_WORKSPACE_FILE_NAME = "pnpm-workspace.yaml";
+const NODE_MODULES_DIRECTORY_NAME = "node_modules";
+const collectFileDirnamePathsUpDirectoryTree = (fileName, rawOptions) => {
+  const options = normalizeCollectFileDirnamesUpDirectoryTreeOptions(rawOptions);
+  return collectFileDirnamePathsUpDirectoryTreeInternal(fileName, options, [], []);
+};
+const collectFileDirnamePathsUpDirectoryTreeInternal = (fileName, options, resultCollection, packageJsonCollection) => {
+  const path2 = normalize(options.cwd);
+  if (packageJsonCollection.length < options.maxPackages && resultCollection.length < options.maxResults && existsSync(join(path2, fileName))) {
+    resultCollection.unshift(path2);
+  }
+  if (packageJsonCollection.length < options.maxPackages && existsSync(join(path2, PACKAGE_JSON_NAME))) {
+    packageJsonCollection.unshift(path2);
+  }
+  const parentPath = join(path2, "..");
+  if (parentPath !== path2 && options.depth > 0 && packageJsonCollection.length < options.maxPackages && resultCollection.length < options.maxResults) {
+    return collectFileDirnamePathsUpDirectoryTreeInternal(
+      fileName,
+      { ...options, depth: options.depth - 1, cwd: parentPath },
+      resultCollection,
+      packageJsonCollection
+    );
+  }
+  return resultCollection;
+};
+const getWorkspaceRoot = (rawOptions) => {
+  return collectFileDirnamePathsUpDirectoryTree(PACKAGE_JSON_NAME, rawOptions)[0];
 };
 const isCustomJsonValueMatcher = (t) => {
   return typeof t === "function";
@@ -11186,6 +11300,7 @@ var settings = {};
       if (this.stats) {
         this.objectMode = true;
       }
+      this.ignore = [].concat(this.ignore);
     }
     _getValue(option, value) {
       return option === void 0 ? value : option;
@@ -11938,26 +12053,6 @@ const globby = normalizeArguments(async (patterns, options) => {
   const results = await Promise.all(tasks2.map((task) => fastGlob(task.patterns, task.options)));
   return unionFastGlobResults(results, filter);
 });
-const PACKAGE_JSON_NAME = "package.json";
-const PNPM_WORKSPACE_FILE_NAME = "pnpm-workspace.yaml";
-const NODE_MODULES_DIRECTORY_NAME = "node_modules";
-const collectPackageJsonPathsUpDirectoryTree = (cwd = process.cwd()) => {
-  return collectPackageJsonPathsUpDirectoryTreeInternal(cwd);
-};
-const collectPackageJsonPathsUpDirectoryTreeInternal = (cwd, collection = []) => {
-  const path2 = normalize(cwd);
-  if (existsSync(join(path2, PACKAGE_JSON_NAME))) {
-    collection.unshift(path2);
-  }
-  const parentPath = join(path2, "..");
-  if (parentPath !== path2) {
-    return collectPackageJsonPathsUpDirectoryTreeInternal(parentPath, collection);
-  }
-  return collection;
-};
-const getWorkspaceRoot = (cwd = process.cwd()) => {
-  return collectPackageJsonPathsUpDirectoryTree(cwd)[0];
-};
 const normalizePackageJsonWorkspacesField = (packageJsonWorkspaces) => {
   if (Array.isArray(packageJsonWorkspaces)) {
     return packageJsonWorkspaces;
@@ -11978,7 +12073,7 @@ const normalizeGetRootPackageJsonOptions = (options) => {
 };
 const getRootPackageJson = async (rawOptions) => {
   const options = normalizeGetRootPackageJsonOptions(rawOptions);
-  const rootWorkspace = getWorkspaceRoot(options.cwd);
+  const rootWorkspace = getWorkspaceRoot(options);
   if (!rootWorkspace) {
     options.logger.error("No package json was found! Cannot collect workspace packages!");
     return void 0;
