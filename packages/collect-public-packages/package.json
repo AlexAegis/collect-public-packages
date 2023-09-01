@@ -45,16 +45,16 @@
 	"dependencies": {
 		"@actions/core": "^1.10.0",
 		"@actions/exec": "^1.1.1",
-		"@alexaegis/workspace-tools": "^0.5.0",
+		"@alexaegis/workspace-tools": "^0.7.0",
 		"polyfill-crypto.getrandomvalues": "^1.0.0"
 	},
 	"devDependencies": {
-		"@alexaegis/eslint-config-vitest": "^0.6.1",
-		"@alexaegis/ts": "^0.6.1",
-		"@alexaegis/vite": "^0.6.1",
-		"@alexaegis/vitest": "^0.6.1",
-		"publint": "^0.1.16",
-		"vite": "^4.4.7",
-		"vitest": "^0.33.0"
+		"@alexaegis/eslint-config-vitest": "^0.8.0",
+		"@alexaegis/ts": "^0.8.0",
+		"@alexaegis/vite": "^0.8.0",
+		"@alexaegis/vitest": "^0.8.0",
+		"publint": "^0.2.2",
+		"vite": "^4.4.9",
+		"vitest": "^0.34.3"
 	}
 }
