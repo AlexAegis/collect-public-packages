@@ -43,18 +43,18 @@
 		}
 	},
 	"dependencies": {
-		"@actions/core": "^1.10.0",
+		"@actions/core": "^1.10.1",
 		"@actions/exec": "^1.1.1",
-		"@alexaegis/workspace-tools": "^0.7.0",
+		"@alexaegis/workspace-tools": "^0.7.1",
 		"polyfill-crypto.getrandomvalues": "^1.0.0"
 	},
 	"devDependencies": {
-		"@alexaegis/eslint-config-vitest": "^0.8.0",
-		"@alexaegis/ts": "^0.8.0",
-		"@alexaegis/vite": "^0.8.0",
-		"@alexaegis/vitest": "^0.8.0",
-		"publint": "^0.2.2",
-		"vite": "^4.4.9",
-		"vitest": "^0.34.3"
+		"@alexaegis/eslint-config-vitest": "^0.8.3",
+		"@alexaegis/ts": "^0.8.3",
+		"@alexaegis/vite": "^0.8.3",
+		"@alexaegis/vitest": "^0.8.3",
+		"publint": "^0.2.4",
+		"vite": "^4.4.11",
+		"vitest": "^0.34.6"
 	}
 }
