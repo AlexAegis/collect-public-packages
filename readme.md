@@ -53,7 +53,7 @@ jobs:
           fetch-depth: 1
       - name: collect packages
         id: collect_packages
-        uses: AlexAegis/collect-public-packages@v1
+        uses: AlexAegis/collect-public-packages@v2
   print:
     name: |
       print ${{ matrix.package.package_name }}@${{ matrix.package.package_version }}
