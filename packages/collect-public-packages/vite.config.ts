@@ -18,7 +18,7 @@ export default defineConfig({
 	},
 	ssr: {
 		target: 'node',
-		noExternal: ['@actions/core', '@actions/exec', '@alexaegis/workspace-tools', 'polyfill-crypto.getrandomvalues'],
+		noExternal: ['@actions/core', '@actions/exec', '@alexaegis/workspace-tools'],
 	},
 	plugins: [pakk()],
 });

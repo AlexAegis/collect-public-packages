@@ -6,16 +6,6 @@ import {
 	type WorkspacePackage,
 } from '@alexaegis/workspace-tools';
 
-// Something is using crypto probably through fs and it fails on gh-actions
-import randomPoly from 'polyfill-crypto.getrandomvalues';
-try {
-	(globalThis as unknown as { crypto: unknown }).crypto = {
-		getRandomValues: randomPoly as unknown,
-	};
-} catch {
-	console.log('cant polyfill getRandomValues');
-}
-
 interface PackageIsPublishedResult {
 	packageName: string;
 	packageNameWithoutOrg: string;
