@@ -14,8 +14,6 @@
 	],
 	"type": "module",
 	"scripts": {
-		"build": "turbo run build-lib_ --concurrency 16 --cache-dir .cache/turbo --filter @alexaegis/collect-public-packages",
-		"build-lib_": "vite build && node copy-bundle.js",
 		"lint:depcheck": "turbo run lint:depcheck_ --concurrency 16 --cache-dir .cache/turbo --filter @alexaegis/collect-public-packages",
 		"lint:depcheck_": "depcheck",
 		"lint:es": "turbo run lint:es_ --concurrency 16 --cache-dir .cache/turbo --filter @alexaegis/collect-public-packages",
@@ -28,12 +26,14 @@
 		"lint:tsc_": "tsc --noEmit",
 		"publint": "BUILD_REASON='publish' turbo run publint_ --concurrency 16 --cache-dir .cache/turbo --filter @alexaegis/collect-public-packages",
 		"publint_": "publint dist",
-		"all": "BUILD_REASON='publish' turbo run all_ --concurrency 16 --cache-dir .cache/turbo --filter @alexaegis/collect-public-packages",
-		"format": "turbo run format_ --concurrency 16 --cache-dir .cache/turbo --filter @alexaegis/collect-public-packages",
-		"format_": "prettier --cache-location .cache/prettier --plugin prettier-plugin-svelte --plugin prettier-plugin-tailwindcss --write .",
 		"test": "turbo run test_ --concurrency 16 --cache-dir .cache/turbo --filter @alexaegis/collect-public-packages",
 		"test_": "vitest --passWithNoTests --coverage --run",
-		"test:watch": "vitest --passWithNoTests --coverage"
+		"test:watch": "vitest --passWithNoTests --coverage",
+		"all": "BUILD_REASON='publish' turbo run all_ --concurrency 16 --cache-dir .cache/turbo --filter @alexaegis/collect-public-packages",
+		"build": "turbo run build-lib_ --concurrency 16 --cache-dir .cache/turbo --filter @alexaegis/collect-public-packages",
+		"build-lib_": "vite build && node copy-bundle.js",
+		"format": "turbo run format_ --concurrency 16 --cache-dir .cache/turbo --filter @alexaegis/collect-public-packages",
+		"format_": "prettier --cache-location .cache/prettier --plugin prettier-plugin-svelte --plugin prettier-plugin-tailwindcss --write ."
 	},
 	"exports": {
 		".": {
@@ -45,16 +45,16 @@
 	"dependencies": {
 		"@actions/core": "^1.10.1",
 		"@actions/exec": "^1.1.1",
-		"@alexaegis/workspace-tools": "^0.7.1",
+		"@alexaegis/workspace-tools": "^0.9.0",
 		"polyfill-crypto.getrandomvalues": "^1.0.0"
 	},
 	"devDependencies": {
-		"@alexaegis/eslint-config-vitest": "^0.8.3",
-		"@alexaegis/ts": "^0.8.3",
-		"@alexaegis/vite": "^0.8.3",
-		"@alexaegis/vitest": "^0.8.3",
-		"publint": "^0.2.4",
-		"vite": "^4.4.11",
-		"vitest": "^0.34.6"
+		"@alexaegis/eslint-config-vitest": "^0.10.0",
+		"@alexaegis/ts": "^0.10.0",
+		"@alexaegis/vite": "^0.10.0",
+		"@alexaegis/vitest": "^0.10.0",
+		"publint": "^0.2.7",
+		"vite": "^5.2.3",
+		"vitest": "^1.4.0"
 	}
 }

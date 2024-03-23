@@ -4,7 +4,8 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
 	build: {
-		target: 'es2022', // Action only supports node16
+		target: 'node20',
+		ssr: true,
 		lib: {
 			entry: '',
 			formats: ['es'],
@@ -14,6 +15,10 @@ export default defineConfig({
 				return builtinModules.includes(source) || source.startsWith('node:');
 			},
 		},
+	},
+	ssr: {
+		target: 'node',
+		noExternal: ['@actions/core', '@actions/exec', '@alexaegis/workspace-tools', 'polyfill-crypto.getrandomvalues'],
 	},
 	plugins: [pakk()],
 });
