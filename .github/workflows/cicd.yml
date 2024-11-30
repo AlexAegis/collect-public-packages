@@ -24,6 +24,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  collect:
+    runs-on: ubuntu-latest
+    outputs:
+      non_published_packages:
+        ${{ steps.collect_packages.outputs.non_published_packages }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: true
+          lfs: true
+      - name: collect public packages
+        id: collect_packages
+        uses: AlexAegis/collect-public-packages@v2
+  check-pages:
+    runs-on: ubuntu-latest
+    outputs:
+      pages_enabled: ${{ steps.check_pages.outputs.is_enabled }}
+    steps:
+      - name: check if github pages is enabled
+        id: check_pages
+        uses: AlexAegis/check-github-pages@v1
   lint:
     name: lint:${{ matrix.lint-kind }}
     runs-on: ubuntu-latest
@@ -39,11 +62,11 @@ jobs:
           submodules: true
           lfs: true
       - name: setup node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
       - name: pnpm setup
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
           run_install: false
       - name: get pnpm store directory
@@ -52,7 +75,7 @@ jobs:
           echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
       - name: cache
         id: cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ${{ steps.pnpm-cache.outputs.STORE_PATH }}
@@ -67,6 +90,8 @@ jobs:
   typedoc:
     name: typedoc
     runs-on: ubuntu-latest
+    needs: [check-pages]
+    if: needs.check-pages.outputs.pages_enabled == 'true'
     strategy:
       matrix:
         node-version: [20.x]
@@ -79,12 +104,12 @@ jobs:
           submodules: true
           lfs: true
       - name: setup node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         if: vars.PAGES_DEPLOY_ARTIFACT_BUILDING_JOB == 'typedoc'
         with:
           node-version: ${{ matrix.node-version }}
       - name: pnpm setup
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         if: vars.PAGES_DEPLOY_ARTIFACT_BUILDING_JOB == 'typedoc'
         with:
           run_install: false
@@ -96,7 +121,7 @@ jobs:
       - name: cache
         id: cache
         if: vars.PAGES_DEPLOY_ARTIFACT_BUILDING_JOB == 'typedoc'
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ${{ steps.pnpm-cache.outputs.STORE_PATH }}
@@ -112,6 +137,7 @@ jobs:
         run: pnpm run typedoc
       - name: prepare pages (use index.html as 404.html)
         if: |
+          needs.check-pages.outputs.pages_enabled == 'true' &&
           vars.PAGES_DEPLOY_ARTIFACT_BUILDING_JOB == 'typedoc' &&
           vars.PAGES_DEPLOY_ARTIFACT_DIR != '' &&
           github.ref_name == github.event.repository.default_branch &&
@@ -119,15 +145,17 @@ jobs:
         run: |
           cp ${{ vars.PAGES_DEPLOY_ARTIFACT_DIR }}/index.html ${{ vars.PAGES_DEPLOY_ARTIFACT_DIR }}/404.html
       - name: setup pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v5
         if: |
+          needs.check-pages.outputs.pages_enabled == 'true' &&
           vars.PAGES_DEPLOY_ARTIFACT_BUILDING_JOB == 'typedoc' &&
           vars.PAGES_DEPLOY_ARTIFACT_DIR != '' &&
           github.ref_name == github.event.repository.default_branch &&
           github.event_name != 'pull_request'
       - name: upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         if: |
+          needs.check-pages.outputs.pages_enabled == 'true' &&
           vars.PAGES_DEPLOY_ARTIFACT_BUILDING_JOB == 'typedoc' &&
           vars.PAGES_DEPLOY_ARTIFACT_DIR != '' && 
           github.ref_name == github.event.repository.default_branch && 
@@ -137,6 +165,8 @@ jobs:
   vitepress:
     name: vitepress
     runs-on: ubuntu-latest
+    needs: [check-pages]
+    if: needs.check-pages.outputs.pages_enabled == 'true'
     strategy:
       matrix:
         node-version: [20.x]
@@ -149,12 +179,12 @@ jobs:
           submodules: true
           lfs: true
       - name: setup node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         if: vars.PAGES_DEPLOY_ARTIFACT_BUILDING_JOB == 'vitepress'
         with:
           node-version: ${{ matrix.node-version }}
       - name: pnpm setup
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         if: vars.PAGES_DEPLOY_ARTIFACT_BUILDING_JOB == 'vitepress'
         with:
           run_install: false
@@ -166,7 +196,7 @@ jobs:
       - name: cache
         id: cache
         if: vars.PAGES_DEPLOY_ARTIFACT_BUILDING_JOB == 'vitepress'
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ${{ steps.pnpm-cache.outputs.STORE_PATH }}
@@ -182,6 +212,7 @@ jobs:
         run: pnpm run vitepress
       - name: prepare pages (use index.html as 404.html)
         if: |
+          needs.check-pages.outputs.pages_enabled == 'true' &&
           vars.PAGES_DEPLOY_ARTIFACT_BUILDING_JOB == 'vitepress' &&
           vars.PAGES_DEPLOY_ARTIFACT_DIR != '' &&
           github.ref_name == github.event.repository.default_branch &&
@@ -189,15 +220,17 @@ jobs:
         run: |
           cp ${{ vars.PAGES_DEPLOY_ARTIFACT_DIR }}/index.html ${{ vars.PAGES_DEPLOY_ARTIFACT_DIR }}/404.html
       - name: setup pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v5
         if: |
+          needs.check-pages.outputs.pages_enabled == 'true' &&
           vars.PAGES_DEPLOY_ARTIFACT_BUILDING_JOB == 'vitepress' &&
           vars.PAGES_DEPLOY_ARTIFACT_DIR != '' &&
           github.ref_name == github.event.repository.default_branch &&
           github.event_name != 'pull_request'
       - name: upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         if: |
+          needs.check-pages.outputs.pages_enabled == 'true' &&
           vars.PAGES_DEPLOY_ARTIFACT_BUILDING_JOB == 'vitepress' &&
           vars.PAGES_DEPLOY_ARTIFACT_DIR != '' && 
           github.ref_name == github.event.repository.default_branch && 
@@ -207,6 +240,7 @@ jobs:
   test:
     name: test
     runs-on: ubuntu-latest
+    needs: [check-pages]
     strategy:
       matrix:
         node-version: [20.x]
@@ -218,11 +252,11 @@ jobs:
           submodules: true
           lfs: true
       - name: setup node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
       - name: pnpm setup
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
           run_install: false
       - name: get pnpm store directory
@@ -231,7 +265,7 @@ jobs:
           echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
       - name: cache
         id: cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ${{ steps.pnpm-cache.outputs.STORE_PATH }}
@@ -250,12 +284,13 @@ jobs:
           coverage-reports: coverage/lcov.info
           language: ${{ vars.CODACY_REPORT_LANGUAGE }}
       - name: upload coverage result to codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: coverage
       - name: prepare pages (use index.html as 404.html)
         if: |
+          needs.check-pages.outputs.pages_enabled == 'true' &&
           vars.PAGES_DEPLOY_ARTIFACT_BUILDING_JOB == 'test' &&
           vars.PAGES_DEPLOY_ARTIFACT_DIR != '' &&
           github.ref_name == github.event.repository.default_branch &&
@@ -263,15 +298,17 @@ jobs:
         run: |
           cp ${{ vars.PAGES_DEPLOY_ARTIFACT_DIR }}/index.html ${{ vars.PAGES_DEPLOY_ARTIFACT_DIR }}/404.html
       - name: setup pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v5
         if: |
+          needs.check-pages.outputs.pages_enabled == 'true' &&
           vars.PAGES_DEPLOY_ARTIFACT_BUILDING_JOB == 'test' &&
           vars.PAGES_DEPLOY_ARTIFACT_DIR != '' &&
           github.ref_name == github.event.repository.default_branch &&
           github.event_name != 'pull_request'
       - name: upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         if: |
+          needs.check-pages.outputs.pages_enabled == 'true' &&
           vars.PAGES_DEPLOY_ARTIFACT_BUILDING_JOB == 'test' &&
           vars.PAGES_DEPLOY_ARTIFACT_DIR != '' && 
           github.ref_name == github.event.repository.default_branch && 
@@ -292,11 +329,11 @@ jobs:
           submodules: true
           lfs: true
       - name: setup node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
       - name: pnpm setup
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
           run_install: false
       - name: get pnpm store directory
@@ -305,7 +342,7 @@ jobs:
           echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
       - name: cache
         id: cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ${{ steps.pnpm-cache.outputs.STORE_PATH }}
@@ -324,6 +361,7 @@ jobs:
         run: pnpm run publint
       - name: prepare pages (use index.html as 404.html)
         if: |
+          needs.check-pages.outputs.pages_enabled == 'true' &&
           vars.PAGES_DEPLOY_ARTIFACT_BUILDING_JOB == 'build' &&
           vars.PAGES_DEPLOY_ARTIFACT_DIR != '' &&
           github.ref_name == github.event.repository.default_branch &&
@@ -331,14 +369,15 @@ jobs:
         run: |
           cp ${{ vars.PAGES_DEPLOY_ARTIFACT_DIR }}/index.html ${{ vars.PAGES_DEPLOY_ARTIFACT_DIR }}/404.html
       - name: setup pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v5
         if: |
+          needs.check-pages.outputs.pages_enabled == 'true' &&
           vars.PAGES_DEPLOY_ARTIFACT_BUILDING_JOB == 'build' &&
           vars.PAGES_DEPLOY_ARTIFACT_DIR != '' &&
           github.ref_name == github.event.repository.default_branch &&
           github.event_name != 'pull_request'
       - name: upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         if: |
           vars.PAGES_DEPLOY_ARTIFACT_BUILDING_JOB == 'build' &&
           vars.PAGES_DEPLOY_ARTIFACT_DIR != '' && 
@@ -351,6 +390,7 @@ jobs:
     if: |
       github.ref_name == github.event.repository.default_branch && 
       github.event_name != 'pull_request' &&
+      needs.check-pages.outputs.pages_enabled == 'true' &&
       vars.PAGES_DEPLOY_ARTIFACT_DIR && (
         vars.PAGES_DEPLOY_ARTIFACT_BUILDING_JOB == 'build' ||
         vars.PAGES_DEPLOY_ARTIFACT_BUILDING_JOB == 'test' ||
@@ -358,29 +398,14 @@ jobs:
         vars.PAGES_DEPLOY_ARTIFACT_BUILDING_JOB == 'vitepress'
       )
     runs-on: ubuntu-latest
-    needs: [build, test, lint, typedoc, vitepress]
+    needs: [build, test, lint, typedoc, vitepress, check-pages]
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: deploy to github pages
-        uses: actions/deploy-pages@v1
+        uses: actions/deploy-pages@v4
         id: deployment
-  collect:
-    runs-on: ubuntu-latest
-    outputs:
-      non_published_packages:
-        ${{ steps.collect_packages.outputs.non_published_packages }}
-    steps:
-      - name: checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-          submodules: true
-          lfs: true
-      - name: collect public packages
-        id: collect_packages
-        uses: AlexAegis/collect-public-packages@v1
   release:
     name: |
       release ${{ matrix.package.package_name }}@${{ matrix.package.package_version }}
@@ -397,12 +422,12 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
       - name: setup node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
           registry-url: 'https://registry.npmjs.org'
       - name: pnpm setup
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
           run_install: false
       - name: get pnpm store directory
@@ -411,7 +436,7 @@ jobs:
           echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
       - name: cache
         id: cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ${{ steps.pnpm-cache.outputs.STORE_PATH }}
