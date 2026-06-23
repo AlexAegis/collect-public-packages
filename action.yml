@@ -9,7 +9,7 @@ branding:
   color: 'yellow'
   icon: 'align-left'
 runs:
-  using: 'node20'
+  using: 'node24'
   main: 'public/index.js'
 inputs:
   registry:

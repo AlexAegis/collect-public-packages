@@ -12,7 +12,14 @@
 		"github-action",
 		"managed-by-autotool"
 	],
+	"repository": {
+		"url": "git+https://github.com/AlexAegis/collect-public-packages.git",
+		"type": "git"
+	},
 	"type": "module",
+	"engines": {
+		"node": ">=22.6.0"
+	},
 	"scripts": {
 		"lint:depcheck": "turbo run lint:depcheck_ --concurrency 16 --filter @alexaegis/collect-public-packages",
 		"lint:depcheck_": "depcheck",
@@ -25,7 +32,7 @@
 		"lint:tsc": "turbo run lint:tsc_ --concurrency 16 --filter @alexaegis/collect-public-packages",
 		"lint:tsc_": "tsc --noEmit",
 		"publint": "BUILD_REASON='publish' turbo run publint_ --concurrency 16 --filter @alexaegis/collect-public-packages",
-		"publint_": "publint dist",
+		"publint_": "publint",
 		"test": "turbo run test_ --concurrency 16 --cache-dir .cache/turbo --filter @alexaegis/collect-public-packages",
 		"test_": "vitest --passWithNoTests --coverage --run",
 		"test:watch": "vitest --passWithNoTests --coverage",
@@ -44,17 +51,17 @@
 		"./package.json": "./package.json"
 	},
 	"dependencies": {
-		"@actions/core": "^1.11.1",
-		"@actions/exec": "^1.1.1",
-		"@alexaegis/workspace-tools": "^0.11.0"
+		"@actions/core": "^3.0.1",
+		"@actions/exec": "^3.0.0",
+		"@alexaegis/workspace-tools": "^0.15.3"
 	},
 	"devDependencies": {
-		"@alexaegis/eslint-config-vitest": "^0.12.0",
-		"@alexaegis/ts": "^0.12.0",
-		"@alexaegis/vite": "^0.12.0",
-		"@alexaegis/vitest": "^0.12.0",
-		"publint": "^0.2.12",
-		"vite": "^6.0.1",
-		"vitest": "^2.1.6"
+		"@alexaegis/eslint-config-vitest": "^0.15.3",
+		"@alexaegis/ts": "^0.15.3",
+		"@alexaegis/vite": "^0.15.3",
+		"@alexaegis/vitest": "^0.15.3",
+		"publint": "^0.3.21",
+		"vite": "^8.1.0",
+		"vitest": "^4.1.9"
 	}
 }

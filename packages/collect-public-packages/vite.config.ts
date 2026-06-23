@@ -1,4 +1,4 @@
-import { pakk } from '@alexaegis/vite';
+import { getLibEntryFromExports } from '@alexaegis/vite';
 import { builtinModules } from 'node:module';
 import { defineConfig } from 'vite';
 
@@ -7,7 +7,7 @@ export default defineConfig({
 		target: 'node20',
 		ssr: true,
 		lib: {
-			entry: '',
+			entry: getLibEntryFromExports(),
 			formats: ['es'],
 		},
 		rollupOptions: {
@@ -20,5 +20,4 @@ export default defineConfig({
 		target: 'node',
 		noExternal: ['@actions/core', '@actions/exec', '@alexaegis/workspace-tools'],
 	},
-	plugins: [pakk()],
 });

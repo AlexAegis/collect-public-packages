@@ -7,5 +7,12 @@
 	},
 	"files": ["package.json", "../../package.json"],
 	"include": ["src/**/*", "static/**/*", "__mocks__/**/*", ".*", "*", "*.json", "**/*.json"],
-	"exclude": ["node_modules", "dist", "coverage", "typedoc", "vite*.config.ts.timestamp-*"]
+	"exclude": [
+		"node_modules",
+		"dist",
+		"coverage",
+		"typedoc",
+		"vite*.config.ts.timestamp-*",
+		"eslint.config.*"
+	]
 }
