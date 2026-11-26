@@ -27359,7 +27359,7 @@ var changeShallowCasingFromCamelToSnake = (o) => {
 			startGroup("public_packages found:");
 			for (const publicWorkspacePackage of workspacePackages) info(publicWorkspacePackage.packageJson.name);
 			endGroup();
-			setOutput("public_packages", fulfilledChecks.map((result) => changeShallowCasingFromCamelToSnake(result.value)));
+			if (fulfilledChecks.length > 0) setOutput("public_packages", fulfilledChecks.map((result) => changeShallowCasingFromCamelToSnake(result.value)));
 			setOutput("public_package_names", workspacePackages.map((workspacePackage) => workspacePackage.packageJson.name));
 			if (alreadyPublishedPackages.length > 0) {
 				startGroup("already_published_packages found:");

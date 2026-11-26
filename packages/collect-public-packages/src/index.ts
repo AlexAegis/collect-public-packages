@@ -143,10 +143,14 @@ void (async () => {
 				info(publicWorkspacePackage.packageJson.name!);
 			}
 			endGroup();
-			setOutput(
-				'public_packages',
-				fulfilledChecks.map((result) => changeShallowCasingFromCamelToSnake(result.value)),
-			);
+			if (fulfilledChecks.length > 0) {
+				setOutput(
+					'public_packages',
+					fulfilledChecks.map((result) =>
+						changeShallowCasingFromCamelToSnake(result.value),
+					),
+				);
+			}
 			const publicPackageNames = workspacePackages.map(
 				(workspacePackage) => workspacePackage.packageJson.name,
 			);

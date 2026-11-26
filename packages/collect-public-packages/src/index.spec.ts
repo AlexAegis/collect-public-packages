@@ -190,6 +190,15 @@ describe('collect-public-packages', () => {
 		expect(outputsByName()['public_package_names']).toEqual(['foo', 'versionless']);
 	});
 
+	it('should not set public_packages when no public package passes the check', async () => {
+		collectWorkspacePackagesMock.mockResolvedValue([workspacePackage('versionless')]);
+
+		await runAction();
+
+		expect(setFailedMock).not.toHaveBeenCalled();
+		expect(outputsByName()).toEqual({ public_package_names: ['versionless'] });
+	});
+
 	it('should set no output when the repository has no public packages', async () => {
 		await runAction();
 
